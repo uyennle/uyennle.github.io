@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Posts on My Website</title>
+    <link>/post/</link>
+    <description>Recent content in Posts on My Website</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-US</language>
+    <lastBuildDate>Sat, 05 Dec 2020 00:00:00 +0000</lastBuildDate><atom:link href="/post/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Python and R</title>
+      <link>/post/2020/12/05/python-and-r/</link>
+      <pubDate>Sat, 05 Dec 2020 00:00:00 +0000</pubDate>
+      
+      <guid>/post/2020/12/05/python-and-r/</guid>
+      <description>Python is a programming language like R. Codes that are done in R can also be similarity done in Python as well. A few examples can be taken from Homework 1 and Homework 10. The dataset, &amp;quot;quakes&amp;quot; is about the locations of Earthquakes off Fiji since 1964. The numeric variables recorded includes the latitude, longtitude, depth, magnitude, and stations of the events. The two main packages I will be showing in Python are Pandas and NumPy.</description>
+    </item>
+    
+  </channel>
+</rss>

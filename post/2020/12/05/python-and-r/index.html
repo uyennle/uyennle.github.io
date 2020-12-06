@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en-US">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="author" content="Uyen Le" />
+    
+    <link rel="shortcut icon" type="image/x-icon" href="../../../../../img/favicon.ico">
+    <title>Python and R</title>
+    <meta name="generator" content="Hugo 0.79.0" />
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+    <link rel="stylesheet" type="text/css" href="../../../../../css/main.css" />
+    <link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" />
+    <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:200,400,200bold,400old" />
+    
+    <!--[if lt IE 9]>
+			<script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+			<script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+		<![endif]-->
+
+    
+  </head>
+
+  <body>
+    <div id="wrap">
+      
+      <nav class="navbar navbar-default">
+  <div class="container">
+    <div class="navbar-header">
+      <a class="navbar-brand" href="../../../../../"><i class="fa fa-home"></i></a>
+      <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#navbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+    </div>
+    <div class="navbar-collapse collapse" id="navbar">
+      <ul class="nav navbar-nav navbar-right">
+      
+        
+        <li><a href="../../../../../post/">BLOG</a></li>
+        
+        <li><a href="../../../../../projects/">PROJECTS</a></li>
+        
+        <li><a href="../../../../../resume/">RESUME</a></li>
+        
+      
+      </ul>
+    </div>
+  </div>
+</nav>
+
+      <div class="container">
+        <div class="blog-post">
+          <h3>
+            <strong><a href="../../../../../post/2020/12/05/python-and-r/">Python and R</a></strong>
+          </h3>
+        </div>
+ 
+<div class="blog-title">
+          <h4>
+         December 5, 2020 
+            &nbsp;&nbsp;
+            
+          </h4>
+        </div>
+
+        <div class="panel panel-default">
+          <div class="panel-body">
+            <div class="blogpost">
+              
+
+
+<p>Python is a programming language like R. Codes that are done in R can also be similarity done in Python as well. A few examples can be taken from Homework 1 and Homework 10. The dataset, &quot;quakes&quot; is about the locations of Earthquakes off Fiji since 1964. The numeric variables recorded includes the latitude, longtitude, depth, magnitude, and stations of the events. The two main packages I will be showing in Python are Pandas and NumPy. The utilization of Pandas and Numpy will give results similar in R.</p>
+<pre class="python"><code>import pandas as pd
+quakes=pd.read_csv(&quot;https://vincentarelbundock.github.io/Rdatasets/csv/datasets/quakes.csv&quot;,index_col=0)
+import numpy as np</code></pre>
+<div id="summary-statistics" class="section level2">
+<h2>Summary Statistics</h2>
+<div id="in-r" class="section level4">
+<h4>in R</h4>
+<pre class="r"><code>summary(quakes)</code></pre>
+<pre><code>##       lat              long           depth            mag      
+##  Min.   :-38.59   Min.   :165.7   Min.   : 40.0   Min.   :4.00  
+##  1st Qu.:-23.47   1st Qu.:179.6   1st Qu.: 99.0   1st Qu.:4.30  
+##  Median :-20.30   Median :181.4   Median :247.0   Median :4.60  
+##  Mean   :-20.64   Mean   :179.5   Mean   :311.4   Mean   :4.62  
+##  3rd Qu.:-17.64   3rd Qu.:183.2   3rd Qu.:543.0   3rd Qu.:4.90  
+##  Max.   :-10.72   Max.   :188.1   Max.   :680.0   Max.   :6.40  
+##     stations     
+##  Min.   : 10.00  
+##  1st Qu.: 18.00  
+##  Median : 27.00  
+##  Mean   : 33.42  
+##  3rd Qu.: 42.00  
+##  Max.   :132.00</code></pre>
+</div>
+<div id="in-python" class="section level4">
+<h4>in Python</h4>
+<pre class="python"><code>quakes.describe()</code></pre>
+<pre><code>##                lat         long        depth          mag     stations
+## count  1000.000000  1000.000000  1000.000000  1000.000000  1000.000000
+## mean    -20.642750   179.462020   311.371000     4.620400    33.418000
+## std       5.028791     6.069497   215.535498     0.402773    21.900386
+## min     -38.590000   165.670000    40.000000     4.000000    10.000000
+## 25%     -23.470000   179.620000    99.000000     4.300000    18.000000
+## 50%     -20.300000   181.410000   247.000000     4.600000    27.000000
+## 75%     -17.637500   183.200000   543.000000     4.900000    42.000000
+## max     -10.720000   188.130000   680.000000     6.400000   132.000000</code></pre>
+<p>Here, the 'describe' function from NumPy used in Python formulated similar results to the 'summary' in R. The output of the 'describe' function gave us the means, standard deviations, minimums, 1st quartiles, 3rd quartiles, and maximums of each variable.</p>
+</div>
+</div>
+<div id="logical-indexing" class="section level2">
+<h2>Logical Indexing</h2>
+<div id="in-r-1" class="section level3">
+<h3>in R</h3>
+<pre class="r"><code>mean(quakes[quakes$depth &gt; 247, ]$mag)</code></pre>
+<pre><code>## [1] 4.5232</code></pre>
+<div id="in-python-1" class="section level4">
+<h4>in Python</h4>
+<pre class="python"><code>quakes[quakes.depth&gt;247].mag.mean()</code></pre>
+<pre><code>## 4.5232000000000001</code></pre>
+<p>Here, both in R and Python, I computed the mean variable 'mag' when 'depth' is greater than the median 'depth.' The outputs are the same giving approxiametly 4.5232.</p>
+</div>
+</div>
+<div id="python-vs.-r" class="section level3">
+<h3>Python vs. R!</h3>
+<div class="figure">
+<img src="../../../../../post/2020-12-05-python-and-r_files/python%20vs%20r.jpg" />
+
+</div>
+</div>
+</div>
+<div id="more-python-and-r" class="section level2">
+<h2>More Python and R</h2>
+<p>The 'reticulate' package allows for R and Python to share information across code chunks. This allows for calling Python from R and translating between R and Python objects. Reticulate embeds a Python session with an R session. I will be showing examples of Regular Expressions (regrex). Regrex searches for matches of a specific pattern by extracting information from the text.</p>
+<div id="regrex-with-multiple-matches" class="section level4">
+<h4>Regrex with multiple matches</h4>
+<pre class="python"><code>import re
+x= &quot;pink, red, purple, orange, green, blue, yellow, white, black, brown, grey, silver, gold&quot;
+re.findall(r&quot;o&quot;,x)</code></pre>
+<pre><code>## [&#39;o&#39;, &#39;o&#39;, &#39;o&#39;, &#39;o&#39;]</code></pre>
+<p>In this example, there is a string containing different colors. I used regrex to find how mnay of the colors contains the letter &quot;o&quot;. As shown, there are 4 colors containing the letter &quot;o&quot;.</p>
+</div>
+<div id="more-regrex" class="section level4">
+<h4>More Regrex</h4>
+<pre class="python"><code>import re
+string=&quot;welcome to my blog, hope you like it!&quot;
+match=re.match(r&quot;welcome.*like&quot;,string) 
+match.group()</code></pre>
+<pre><code>## &#39;welcome to my blog, hope you like&#39;</code></pre>
+<p>In this example, 're.match' expression returns the first match in the string and anything in between up to the word &quot;like&quot;.</p>
+</div>
+</div>
+
+            
+        <hr>         <div class="related-posts">
+                <h5>Related Posts</h5>
+                
+              </div> 
+            </div>
+          </div>
+
+   <hr>  <div class="disqus">
+  <div id="disqus_thread"></div>
+  <script type="text/javascript">
+
+    (function() {
+      
+      
+      if (window.location.hostname == "localhost")
+        return;
+
+      var disqus_shortname = '';
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+  </script>
+  <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+  <a href="http://disqus.com/" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+</div> 
+        </div>
+      </div>
+    </div>
+
+    
+    <footer>
+  <div id="footer">
+    <div class="container">
+      <p class="text-muted">&copy; All rights reserved. Powered by <a href="https://gohugo.io/">Hugo</a> and
+      <a href="http://www.github.com/nurlansu/hugo-sustain/">sustain</a> with ♥</p>
+    </div>
+  </div>
+</footer>
+<div class="footer"></div>
+
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+<script src="../../../../../js/docs.min.js"></script>
+<script src="../../../../../js/main.js"></script>
+
+<script src="../../../../../js/ie10-viewport-bug-workaround.js"></script>
+
+
+    
+  </body>
+</html>

@@ -1,0 +1,66 @@
+---
+title: Python and R
+author: ''
+date: '2020-12-05'
+slug: python-and-r
+categories: []
+tags: []
+description: ''
+---
+
+Python is a programming language like R. Codes that are done in R can also be similarity done in Python as well. A few examples can be taken from Homework 1 and Homework 10. The dataset, "quakes" is about the locations of Earthquakes off Fiji since 1964. The numeric variables recorded includes the latitude, longtitude, depth, magnitude, and stations of the events. The two main packages I will be showing in Python are Pandas and NumPy. The utilization of Pandas and Numpy will give results similar in R. 
+
+```{python}
+import pandas as pd
+quakes=pd.read_csv("https://vincentarelbundock.github.io/Rdatasets/csv/datasets/quakes.csv",index_col=0)
+import numpy as np
+```
+
+##Summary Statistics
+####in R
+```{R}
+summary(quakes)
+```
+
+####in Python
+```{python}
+quakes.describe()
+```
+
+Here, the 'describe' function from NumPy used in Python formulated similar results to the 'summary' in R. The output of the 'describe' function gave us the means, standard deviations, minimums, 1st quartiles, 3rd quartiles, and maximums of each variable. 
+
+##Logical Indexing
+###in R
+```{R}
+mean(quakes[quakes$depth > 247, ]$mag)
+```
+
+####in Python
+```{python}
+quakes[quakes.depth>247].mag.mean()
+```
+
+Here, both in R and Python, I computed the mean variable 'mag' when 'depth' is greater than the median 'depth.' The outputs are the same giving approxiametly 4.5232.
+
+###Python vs. R!
+![](/post/2020-12-05-python-and-r_files/python vs r.jpg)
+
+##More Python and R
+The 'reticulate' package allows for R and Python to share information across code chunks. This allows for calling Python from R and translating between R and Python objects. Reticulate embeds a Python session with an R session. I will be showing examples of Regular Expressions (regrex). Regrex searches for matches of a specific pattern by extracting information from the text.
+
+####Regrex with multiple matches
+```{python}
+import re
+x= "pink, red, purple, orange, green, blue, yellow, white, black, brown, grey, silver, gold"
+re.findall(r"o",x)
+```
+In this example, there is a string containing different colors. I used regrex to find how mnay of the colors contains the letter "o". As shown, there are 4 colors containing the letter "o".
+
+####More Regrex 
+```{python}
+import re
+string="welcome to my blog, hope you like it!"
+match=re.match(r"welcome.*like",string) 
+match.group()
+```
+In this example, 're.match' expression returns the first match in the string and anything in between up to the word "like".

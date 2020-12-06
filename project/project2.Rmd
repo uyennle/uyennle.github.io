@@ -1,0 +1,287 @@
+---
+title: "project2"
+author: "Uyen Le"
+date: "11/16/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, eval = TRUE, fig.align = "center", warning = F, message = F,
+tidy=TRUE, tidy.opts=list(width.cutoff=60), R.options=list(max.print=100))
+```
+
+```{r global_options, include=FALSE}
+#LEAVE THIS CHUNK ALONE!
+library(knitr)
+opts_chunk$set(fig.align="center", fig.height=5, message=FALSE, warning=FALSE, fig.width=8, tidy.opts=list(width.cutoff=60),tidy=TRUE)
+
+#HERE'S THE CLASSIFICAITON DIAGNOSTICS FUNCTION
+class_diag<-function(probs,truth){
+  tab<-table(factor(probs>.5,levels=c("FALSE","TRUE")),truth)
+  acc=sum(diag(tab))/sum(tab)
+  sens=tab[2,2]/colSums(tab)[2]
+  spec=tab[1,1]/colSums(tab)[1]
+  ppv=tab[2,2]/rowSums(tab)[2]
+  f1=2*(sens*ppv)/(sens+ppv)
+
+  if(is.numeric(truth)==FALSE & is.logical(truth)==FALSE){
+    truth<-as.numeric(truth)-1}
+  
+  #CALCULATE EXACT AUC
+  ord<-order(probs, decreasing=TRUE)
+  probs <- probs[ord]; truth <- truth[ord]
+  
+  TPR=cumsum(truth)/max(1,sum(truth)) 
+  FPR=cumsum(!truth)/max(1,sum(!truth))
+  
+  dup<-c(probs[-1]>=probs[-length(probs)], FALSE)
+  TPR<-c(0,TPR[!dup],1); FPR<-c(0,FPR[!dup],1)
+  
+  n <- length(TPR)
+  auc<- sum( ((TPR[-1]+TPR[-n])/2) * (FPR[-1]-FPR[-n]) )
+
+  data.frame(acc,sens,spec,ppv,f1,auc)
+}
+```
+
+## Uyen Le, utl243
+
+##Introduction
+
+The dataset I'm using exhibits the drunk driving laws and traffic deaths. From the 'Fatality' dataset, there were a total of 11 variables and 336 observations. Three variables were removed including the state ID code, the year, and a duplicate column of the observations. The remaining variables are 'mlda, mrall, beertax, vmiles, unrate, perinc, comserd, and jaild.' The  variable 'mlda' is the minimum legal drinking age, 'mrall' is traffic fatality rate (deaths per 10000), 'beertax' is the tax on case of beer, 'vmiles' is average miles per driver, 'unrate' is unemployment rate, 'perinc' is per capita personal income, 'comserd' is mandatory community service, and 'jaild' is mandatory jail sentence. 
+
+
+```{R}
+library(lmtest)
+library(dplyr)
+library(tidyverse)
+library(sandwich)
+library(plotROC)
+
+fatality <-read.csv("/stor/home/utl243/Fatality.csv")
+fatality2 <- fatality %>% select(-1,-2,-3)
+fatality2[,c(3,1:2,6:8,5,4)] ->fatality2
+fatality3 <-fatality2
+head(fatality2)
+```
+
+##1. MANOVA
+
+```{R}
+library(rstatix)
+
+group <- fatality2$jaild 
+DVs <- fatality2 %>% select(mlda,mrall,beertax,vmiles,unrate,perinc)
+
+#Test multivariate normality for each group (null: assumption met)
+sapply(split(DVs,group), mshapiro_test)
+
+#MANOVA
+man3<-manova(cbind(mlda,mrall,beertax,vmiles,unrate,perinc)~jaild, data=fatality2) 
+summary(man3)
+
+#one-way ANOVAs
+summary.aov(man3)
+
+#post-hoc t tests
+pairwise.t.test(fatality2$mlda, fatality2$jaild, p.adj="none")
+pairwise.t.test(fatality2$mrall, fatality2$jaild, p.adj="none")
+pairwise.t.test(fatality2$beertax, fatality2$jaild, p.adj="none")
+pairwise.t.test(fatality2$vmiles, fatality2$jaild, p.adj="none")
+pairwise.t.test(fatality2$unrate, fatality2$jaild, p.adj="none")
+pairwise.t.test(fatality2$perinc, fatality2$jaild, p.adj="none")
+
+#probability type I error
+1-(1-0.05)^13
+#Boneferroni adjusted rate
+.05/13
+```
+
+A one-way MANOVA was conducted to determine the effect of whether there is a mandatory jail sentence on six dependent variables (mlda, mrall, beertax, vmiles, unrate, and perinc). 
+With a null that the assumption is met, multivariate normality of each group revealed not be met with p<0.05 for both groups.
+There was a total of 1 MANOVA, 6 ANOVAs, and 6 t-tests. There is a probability of 0.4866579 that I have made at least one type I error. The Bonferroni adjusted rate I should be using to keep the overall type I error rate at .05 is 0.003846154.
+Significant differences were found among whether there is a mandatory jail sentence for at least one of the dependent variables, P illai trace = .11, pseudo F (6, 329) = 6.65, p < 0.0038. 
+Univariate ANOVAs for each dependent variable were conducted as follow-up tests to the MANOVA, using the Bonferroni method for controlling Type I error rates for multiple comparisons. The univariate ANOVAs for mrall were also significant, F (1, 334) = 28.021, p < 0.0038).
+Post hoc analysis was performed conducting pairwise comparisons to determine whether or not there is a mandatory jail sentence differed in mrall. Yes and no mandatory jail sentence were found to differ from each other in terms of mrall after adjusting for multiple comparisons (bonferroni α = .05/13 = .0038).  
+
+##2. Randomization Test
+
+```{R}
+set.seed(348)
+
+fatality2 %>% group_by(jaild) %>% summarize(means = mean(mrall)) %>% summarize(`mean_diff:`=diff(means)) %>% glimpse()
+
+randdist<-vector() 
+
+for(i in 1:5000){
+new<-data.frame(mrall=sample(fatality2$mrall),jaild=fatality2$jaild) 
+randdist[i]<-mean(new[new$jaild=="yes",]$mrall)-   
+              mean(new[new$jaild=="no",]$mrall)} 
+ 
+{hist(randdist,main="",ylab=""); abline(v =c(-0.3528725, 0.3528725),col="red")}
+mean(randdist>0.3528725 | randdist< -0.3528725)
+```
+
+The actual observed mean difference between whether there is jail sentence (jaild) and traffic fertility rate (mrall) is 0.3528725. The randomization test with a mean difference statistic was performed. A p-value of 0 was the outcome. Looking at the graph, there is a probability of 0 of observing a mean difference as extreme as the one under the randomization distribution. There are no ablines present on the graph. 
+
+##3. Linear Regression
+
+```{R}
+#linear regression with interation
+fatality3$unrate_c <- fatality3$unrate -mean(fatality3$unrate, na.rm=T)
+fit<-lm(mrall ~ unrate_c*jaild,data=fatality3)
+summary(fit)
+
+#regression plot
+fatality3 %>% ggplot(aes(unrate_c, mrall,color=jaild)) + geom_point()+
+geom_smooth(method="lm") 
+
+#assumptions
+resids<-lm(mrall ~ unrate_c*jaild,data=fatality3)$residuals
+fitvals<-fit$fitted.values
+ggplot()+geom_point(aes(fitvals,resids))+geom_hline(yintercept=0, color='red') #linearity
+shapiro.test(resids) #normality
+bptest(fit) #homoskedasticity
+
+#regression with robust standard errors
+coeftest(fit, vcov = vcovHC(fit))
+
+```
+
+A linear regression was performed predicting the traffic fatality rate (mrall) variable from the mean unemployment (unrate) variable and whether there is mandatory jail sentence (jaild) with interactions. The intercept means that the mean/predicted traffic fatality rate for states with no mandatory jail sentence with average unemployment rate is 1.95335. The coefficient ‘unrate_c’ means that the unemployment rate associated with traffic fatality rate for states with no mandatory jail sentence: for every 1-unit increase in unemployment rate, predicted traffic fatality rate goes up 0.05061 for this group. The coefficient ‘jaildyes’ means that states with mandatory jail sentence with average unemployment rate have predicted traffic fatality rate that is 0.34609 higher than states with no mandatory jail sentence with average unemployment rate. The coefficient ‘unrate_c:jailyes’ means that the slope of unemployment rate on traffic fatality rate for states with mandatory jail sentence is 0.0588 lower than for states with no mandatory jail sentence. 
+Looking at the fitted values versus residuals plot, linearity is met. Normality is met using the Shapiro-Wilk test with a p-value<0.05. Homoskedasticity is met using the Breusch-Pagan test with a p-value<0.05.
+With the robust standard errors, there were no changes after the robust standard errors. All the coefficients are still significant with p-values<0.05 for each. 
+A proportion of 0.1028 of the variation in the outcome is explained by the overall model.
+
+##4. Bootstrapped Standard Errors
+
+```{R}
+fit<-lm(mrall ~ unrate_c*jaild,data=fatality3)
+  resids<-fit$residuals #save residuals
+  fitted<-fit$fitted.values #save yhats/predictions
+   
+  resid_resamp<-replicate(5000,{
+    new_resids<-sample(resids,replace=TRUE) #resample resids w/ replacement
+    fatality3$new_y<-fitted+new_resids #add new resids to yhats to get new "data"
+    fit<-lm(new_y~unrate_c*jaild,data=fatality3) #refit model
+    coef(fit) #save coefficient estimates (b0, b1, etc)
+}) 
+resid_resamp%>%t%>%as.data.frame%>%summarize_all(sd)
+```
+
+After computing the bootstrapped standard errors by residuals, the coefficient ‘jailyes’ is no longer significant with p-value>0.05. The p-value of the coefficient ‘unrate_c’ is 0.01431502, which is higher than the robust SEs and original SEs. The p-value of the coefficient ‘unrate_c:jailyes’ is 0.02480965 which is higher than the robust SEs and original SEs. 
+
+##5. Logistic Regression
+
+```{R}
+#logistic regression
+fit<- glm(jaild~comserd+unrate,data=fatality2,family="binomial")
+summary(fit)
+exp(coef(fit))
+
+#confusion matrix
+fatality2.1<-fatality2%>%mutate(prob=predict(fit, type="response"), prediction=ifelse(prob>.5,1,0))
+fat2.1<-fatality2.1%>%transmute(prob,prediction,truth=jaild)
+table(prediction=fat2.1$prediction, truth=fat2.1$truth)%>% addmargins
+
+#accuracy
+(227+49)/336
+#sensitivity (TPR)
+227/272
+#specificity (TNR)
+49/64
+#precision (PPV)
+227/242
+#AUC
+ROCplot <-ggplot(fat2.1)+geom_roc(aes(d=truth,m=prob), n.cuts=0)
+calc_auc(ROCplot)
+
+fatality3$logit<-predict(fit,type="link") #predicted logit/log-odds
+
+#density plot
+fatality3%>%ggplot()+geom_density(aes(logit,color=jaild,fill=jaild), alpha=.4)+
+  theme(legend.position=c(.85,.85))+geom_vline(xintercept=0)+xlab("logit (log-odds)")+
+  geom_rug(aes(logit,color=jaild))
+
+#ROC curve
+library(plotROC)
+ROCplot <-ggplot(fat2.1)+geom_roc(aes(d=truth,m=prob), n.cuts=0)
+ROCplot
+calc_auc(ROCplot)
+```
+
+A logistic regression model was computed predicting whether or not there is mandatory jail sentence (jaild) from explanatory variable whether there is mandatory community service (comserd) and unemployment rate (unrate). 
+The odds of mandatory jail sentence (jaild) for states with no mandatory community service (comserd) is 0.03770103. Controlling for unemployment rate (unrate), odds of mandatory jail sentence (jaild) for states with mandatory community service (comserd) is 21.61719832 times odds of mandatory jail sentence for states with no mandatory community service (comserd). Controlling for comserd, for every one additional unemployment rate, odds of mandatory jail sentence (jaild) increasing by a factor of 1.23723760. 
+The accuracy of the model is 0.8214286, the sensitivity (TPR) is 0.8345588, the specificity (TNR) is 0.765625, the precision (PPV) is 0.9380165, and the AUC is 0.8039828 which is good. The probability that a randomly selected state with mandatory jail sentence has a higher probability than a randomly selected state without mandatory jail sentence. 
+
+##6. Logistic Regression 2
+
+```{R}
+#logistic regression
+fit <- glm(jaild~.,data=fatality2,family="binomial")
+summary(fit)
+prob <- predict(fit, type="response") 
+
+#classification diagnostics 
+class_diag(prob,fatality2$jaild)
+
+#10-fold CV
+set.seed(1234)
+k=10
+data<-fatality2[sample(nrow(fatality2)),] 
+folds<-cut(seq(1:nrow(fatality2)),breaks=k,labels=F) 
+diags<-NULL
+for(i in 1:k){
+  train<-data[folds!=i,] 
+  test<-data[folds==i,]
+  truth<-test$jaild 
+  fit<-glm(jaild~.,data=train,family="binomial")
+  probs<-predict(fit,newdata = test,type="response")
+  diags<-rbind(diags,class_diag(probs,truth))
+}
+
+summarize_all(diags,mean) 
+
+#LASSO
+library(glmnet)
+set.seed(1234)
+
+y<-as.matrix(fatality2$jaild) #reponse
+x<-model.matrix(jaild~.,data=fatality2)[,-1]#predictor 
+x <-scale(x)
+
+cv1 <- cv.glmnet(x,y, family="binomial") #cross validation
+lasso_fit<-glmnet(x,y,family="binomial",lambda=cv1$lambda.1se)
+coef(lasso_fit)
+
+#10-fold CV of variables lasso selected
+set.seed(1234) 
+k=10
+
+data <- fatality2 %>% sample_frac
+folds <- ntile(1:nrow(data),n=10) 
+
+diags<-NULL
+for(i in 1:k){
+  train<-data[folds!=i,] 
+  test<-data[folds==i,]
+  truth<-test$jaild 
+  
+  fit<-glm(jaild~mrall+unrate+comserd,
+           data=train,family="binomial")
+  probs<-predict(fit,newdata = test,type="response")
+  
+  diags<-rbind(diags,class_diag(probs,truth))
+}
+
+diags%>%summarize_all(mean)
+```
+
+A logistic regression model was computed predicting whether or not there is mandatory jail sentence (jaild) from all the explanatory variables. 
+The in-sample accuracy of the model is 0.8303571, the sensitivity (TPR) is 0.5851064, the specificity (TNR) is 0.9256198, the precision (PPV) is 0.7534247, the f1 is 0.6586826 and the AUC is 0.85968 which is good. 
+For the 10-fold CV, the out-of-sample accuracy of the model is 0.8122995, the sensitivity (TPR) is 0.554513, the specificity (TNR) is 0.9215694, the precision (PPV) is 0.7766667, the f1 is 0.613764, and the AUC is 0.8428538 which is good and similar to the in-sample classification diagnostics. 
+After LASSO was performed, the variables ‘mrall’ (traffic fatality rate), ‘unrate’ (unemployment rate), and ‘comserdyes’ (mandatory community service) were retained. 
+For the 10-CV fold using the variables only lasso selected, accuracy of the model is 0.8032086, the sensitivity (TPR) is 0.5065765, the specificity (TNR) is 0.9265188, the precision (PPV) is 0.765235, the f1 is 0.5744437 and the AUC is 0.8372686 which is good and similar to the AUC of the logistic regressions above.
+
+
+

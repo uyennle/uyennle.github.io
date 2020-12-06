@@ -1,0 +1,575 @@
+<!DOCTYPE html>
+<html lang="en-US">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="author" content="Uyen Le" />
+    
+    <link rel="shortcut icon" type="image/x-icon" href="../../img/favicon.ico">
+    <title>project2</title>
+    <meta name="generator" content="Hugo 0.79.0" />
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+    <link rel="stylesheet" type="text/css" href="../../css/main.css" />
+    <link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" />
+    <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:200,400,200bold,400old" />
+    
+    <!--[if lt IE 9]>
+			<script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+			<script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+		<![endif]-->
+
+    
+  </head>
+
+  <body>
+    <div id="wrap">
+      
+      <nav class="navbar navbar-default">
+  <div class="container">
+    <div class="navbar-header">
+      <a class="navbar-brand" href="../../"><i class="fa fa-home"></i></a>
+      <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#navbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+    </div>
+    <div class="navbar-collapse collapse" id="navbar">
+      <ul class="nav navbar-nav navbar-right">
+      
+        
+        <li><a href="../../post/">BLOG</a></li>
+        
+        <li><a href="../../projects/">PROJECTS</a></li>
+        
+        <li><a href="../../resume/">RESUME</a></li>
+        
+      
+      </ul>
+    </div>
+  </div>
+</nav>
+
+      <div class="container">
+        <div class="blog-post">
+          <h3>
+            <strong><a href="../../project/project2/">project2</a></strong>
+          </h3>
+        </div>
+ 
+<div class="blog-title">
+          <h4>
+         January 1, 0001 
+            &nbsp;&nbsp;
+            
+          </h4>
+        </div>
+
+        <div class="panel panel-default">
+          <div class="panel-body">
+            <div class="blogpost">
+              
+
+
+<div id="uyen-le-utl243" class="section level2">
+<h2>Uyen Le, utl243</h2>
+</div>
+<div id="introduction" class="section level2">
+<h2>Introduction</h2>
+<p>The dataset I'm using exhibits the drunk driving laws and traffic deaths. From the 'Fatality' dataset, there were a total of 11 variables and 336 observations. Three variables were removed including the state ID code, the year, and a duplicate column of the observations. The remaining variables are 'mlda, mrall, beertax, vmiles, unrate, perinc, comserd, and jaild.' The variable 'mlda' is the minimum legal drinking age, 'mrall' is traffic fatality rate (deaths per 10000), 'beertax' is the tax on case of beer, 'vmiles' is average miles per driver, 'unrate' is unemployment rate, 'perinc' is per capita personal income, 'comserd' is mandatory community service, and 'jaild' is mandatory jail sentence.</p>
+<pre class="r"><code>library(lmtest)
+library(dplyr)
+library(tidyverse)
+library(sandwich)
+library(plotROC)
+
+fatality &lt;- read.csv(&quot;/stor/home/utl243/Fatality.csv&quot;)
+fatality2 &lt;- fatality %&gt;% select(-1, -2, -3)
+fatality2 &lt;- fatality2[, c(3, 1:2, 6:8, 5, 4)]
+fatality3 &lt;- fatality2
+head(fatality2)</code></pre>
+<pre><code>##    mlda   mrall  beertax   vmiles unrate   perinc comserd jaild
+## 1 19.00 2.12836 1.539379 7.233887   14.4 10544.15      no    no
+## 2 19.00 2.34848 1.788991 7.836348   13.7 10732.80      no    no
+## 3 19.00 2.33643 1.714286 8.262990   11.1 11108.79      no    no
+## 4 19.67 2.19348 1.652542 8.726917    8.9 11332.63      no    no
+## 5 21.00 2.66914 1.609907 8.952854    9.8 11661.51      no    no
+## 6 21.00 2.71859 1.560000 9.166302    7.8 11944.00      no    no</code></pre>
+</div>
+<div id="manova" class="section level2">
+<h2>1. MANOVA</h2>
+<pre class="r"><code>library(rstatix)
+
+group &lt;- fatality2$jaild
+DVs &lt;- fatality2 %&gt;% select(mlda, mrall, beertax, vmiles, unrate, 
+    perinc)
+
+# Test multivariate normality for each group (null:
+# assumption met)
+sapply(split(DVs, group), mshapiro_test)</code></pre>
+<pre><code>##           no           yes         
+## statistic 0.4553902    0.8078793   
+## p.value   1.456078e-26 1.006677e-09</code></pre>
+<pre class="r"><code># MANOVA
+man3 &lt;- manova(cbind(mlda, mrall, beertax, vmiles, unrate, perinc) ~ 
+    jaild, data = fatality2)
+summary(man3)</code></pre>
+<pre><code>##            Df  Pillai approx F num Df den Df    Pr(&gt;F)    
+## jaild       1 0.10816   6.6504      6    329 1.181e-06 ***
+## Residuals 334                                             
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1</code></pre>
+<pre class="r"><code># one-way ANOVAs
+summary.aov(man3)</code></pre>
+<pre><code>##  Response mlda :
+##              Df  Sum Sq Mean Sq F value  Pr(&gt;F)  
+## jaild         1   3.248  3.2479  4.0551 0.04484 *
+## Residuals   334 267.515  0.8009                  
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+##  Response mrall :
+##              Df Sum Sq Mean Sq F value    Pr(&gt;F)    
+## jaild         1   8.43  8.4302  28.021 2.179e-07 ***
+## Residuals   334 100.48  0.3009                      
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+##  Response beertax :
+##              Df Sum Sq Mean Sq F value Pr(&gt;F)
+## jaild         1  0.107 0.10741  0.4697 0.4936
+## Residuals   334 76.385 0.22870               
+## 
+##  Response vmiles :
+##              Df Sum Sq Mean Sq F value Pr(&gt;F)
+## jaild         1   3.65  3.6483  1.6788  0.196
+## Residuals   334 725.84  2.1732               
+## 
+##  Response unrate :
+##              Df  Sum Sq Mean Sq F value   Pr(&gt;F)   
+## jaild         1   45.67  45.674  7.2491 0.007451 **
+## Residuals   334 2104.40   6.301                    
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+##  Response perinc :
+##              Df     Sum Sq  Mean Sq F value   Pr(&gt;F)   
+## jaild         1   39976632 39976632  8.0408 0.004852 **
+## Residuals   334 1660556260  4971725                    
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1</code></pre>
+<pre class="r"><code># post-hoc t tests
+pairwise.t.test(fatality2$mlda, fatality2$jaild, p.adj = &quot;none&quot;)</code></pre>
+<pre><code>## 
+##  Pairwise comparisons using t tests with pooled SD 
+## 
+## data:  fatality2$mlda and fatality2$jaild 
+## 
+##     no   
+## yes 0.045
+## 
+## P value adjustment method: none</code></pre>
+<pre class="r"><code>pairwise.t.test(fatality2$mrall, fatality2$jaild, p.adj = &quot;none&quot;)</code></pre>
+<pre><code>## 
+##  Pairwise comparisons using t tests with pooled SD 
+## 
+## data:  fatality2$mrall and fatality2$jaild 
+## 
+##     no     
+## yes 2.2e-07
+## 
+## P value adjustment method: none</code></pre>
+<pre class="r"><code>pairwise.t.test(fatality2$beertax, fatality2$jaild, p.adj = &quot;none&quot;)</code></pre>
+<pre><code>## 
+##  Pairwise comparisons using t tests with pooled SD 
+## 
+## data:  fatality2$beertax and fatality2$jaild 
+## 
+##     no  
+## yes 0.49
+## 
+## P value adjustment method: none</code></pre>
+<pre class="r"><code>pairwise.t.test(fatality2$vmiles, fatality2$jaild, p.adj = &quot;none&quot;)</code></pre>
+<pre><code>## 
+##  Pairwise comparisons using t tests with pooled SD 
+## 
+## data:  fatality2$vmiles and fatality2$jaild 
+## 
+##     no 
+## yes 0.2
+## 
+## P value adjustment method: none</code></pre>
+<pre class="r"><code>pairwise.t.test(fatality2$unrate, fatality2$jaild, p.adj = &quot;none&quot;)</code></pre>
+<pre><code>## 
+##  Pairwise comparisons using t tests with pooled SD 
+## 
+## data:  fatality2$unrate and fatality2$jaild 
+## 
+##     no    
+## yes 0.0075
+## 
+## P value adjustment method: none</code></pre>
+<pre class="r"><code>pairwise.t.test(fatality2$perinc, fatality2$jaild, p.adj = &quot;none&quot;)</code></pre>
+<pre><code>## 
+##  Pairwise comparisons using t tests with pooled SD 
+## 
+## data:  fatality2$perinc and fatality2$jaild 
+## 
+##     no    
+## yes 0.0049
+## 
+## P value adjustment method: none</code></pre>
+<pre class="r"><code># probability type I error
+1 - (1 - 0.05)^13</code></pre>
+<pre><code>## [1] 0.4866579</code></pre>
+<pre class="r"><code># Boneferroni adjusted rate
+0.05/13</code></pre>
+<pre><code>## [1] 0.003846154</code></pre>
+<p>A one-way MANOVA was conducted to determine the effect of whether there is a mandatory jail sentence on six dependent variables (mlda, mrall, beertax, vmiles, unrate, and perinc). With a null that the assumption is met, multivariate normality of each group revealed not be met with p&lt;0.05 for both groups. There was a total of 1 MANOVA, 6 ANOVAs, and 6 t-tests. There is a probability of 0.4866579 that I have made at least one type I error. The Bonferroni adjusted rate I should be using to keep the overall type I error rate at .05 is 0.003846154. Significant differences were found among whether there is a mandatory jail sentence for at least one of the dependent variables, P illai trace = .11, pseudo F (6, 329) = 6.65, p &lt; 0.0038. Univariate ANOVAs for each dependent variable were conducted as follow-up tests to the MANOVA, using the Bonferroni method for controlling Type I error rates for multiple comparisons. The univariate ANOVAs for mrall were also significant, F (1, 334) = 28.021, p &lt; 0.0038). Post hoc analysis was performed conducting pairwise comparisons to determine whether or not there is a mandatory jail sentence differed in mrall. Yes and no mandatory jail sentence were found to differ from each other in terms of mrall after adjusting for multiple comparisons (bonferroni α = .05/13 = .0038).</p>
+</div>
+<div id="randomization-test" class="section level2">
+<h2>2. Randomization Test</h2>
+<pre class="r"><code>set.seed(348)
+
+fatality2 %&gt;% group_by(jaild) %&gt;% summarize(means = mean(mrall)) %&gt;% 
+    summarize(`mean_diff:` = diff(means)) %&gt;% glimpse()</code></pre>
+<pre><code>## Rows: 1
+## Columns: 1
+## $ `mean_diff:` &lt;dbl&gt; 0.3528725</code></pre>
+<pre class="r"><code>randdist &lt;- vector()
+
+for (i in 1:5000) {
+    new &lt;- data.frame(mrall = sample(fatality2$mrall), jaild = fatality2$jaild)
+    randdist[i] &lt;- mean(new[new$jaild == &quot;yes&quot;, ]$mrall) - mean(new[new$jaild == 
+        &quot;no&quot;, ]$mrall)
+}
+
+{
+    hist(randdist, main = &quot;&quot;, ylab = &quot;&quot;)
+    abline(v = c(-0.3528725, 0.3528725), col = &quot;red&quot;)
+}</code></pre>
+<p><img src="../../project/project2_files/figure-html/unnamed-chunk-3-1.png" width="768" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>mean(randdist &gt; 0.3528725 | randdist &lt; -0.3528725)</code></pre>
+<pre><code>## [1] 0</code></pre>
+<p>The actual observed mean difference between whether there is jail sentence (jaild) and traffic fertility rate (mrall) is 0.3528725. The randomization test with a mean difference statistic was performed. A p-value of 0 was the outcome. Looking at the graph, there is a probability of 0 of observing a mean difference as extreme as the one under the randomization distribution. There are no ablines present on the graph.</p>
+</div>
+<div id="linear-regression" class="section level2">
+<h2>3. Linear Regression</h2>
+<pre class="r"><code># linear regression with interation
+fatality3$unrate_c &lt;- fatality3$unrate - mean(fatality3$unrate, 
+    na.rm = T)
+fit &lt;- lm(mrall ~ unrate_c * jaild, data = fatality3)
+summary(fit)</code></pre>
+<pre><code>## 
+## Call:
+## lm(formula = mrall ~ unrate_c * jaild, data = fatality3)
+## 
+## Residuals:
+##      Min       1Q   Median       3Q      Max 
+## -1.02855 -0.38796 -0.04779  0.34027  2.17069 
+## 
+## Coefficients:
+##                   Estimate Std. Error t value Pr(&gt;|t|)    
+## (Intercept)        1.95335    0.03488  56.008  &lt; 2e-16 ***
+## unrate_c           0.05061    0.01442   3.509 0.000511 ***
+## jaildyes           0.34609    0.06682   5.179 3.87e-07 ***
+## unrate_c:jaildyes -0.05880    0.02497  -2.355 0.019106 *  
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+## Residual standard error: 0.5401 on 332 degrees of freedom
+## Multiple R-squared:  0.1108, Adjusted R-squared:  0.1028 
+## F-statistic: 13.79 on 3 and 332 DF,  p-value: 1.691e-08</code></pre>
+<pre class="r"><code># regression plot
+fatality3 %&gt;% ggplot(aes(unrate_c, mrall, color = jaild)) + geom_point() + 
+    geom_smooth(method = &quot;lm&quot;)</code></pre>
+<p><img src="../../project/project2_files/figure-html/unnamed-chunk-4-1.png" width="768" style="display: block; margin: auto;" /></p>
+<pre class="r"><code># assumptions
+resids &lt;- lm(mrall ~ unrate_c * jaild, data = fatality3)$residuals
+fitvals &lt;- fit$fitted.values
+ggplot() + geom_point(aes(fitvals, resids)) + geom_hline(yintercept = 0, 
+    color = &quot;red&quot;)  #linearity</code></pre>
+<p><img src="../../project/project2_files/figure-html/unnamed-chunk-4-2.png" width="768" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>shapiro.test(resids)  #normality</code></pre>
+<pre><code>## 
+##  Shapiro-Wilk normality test
+## 
+## data:  resids
+## W = 0.96829, p-value = 1.035e-06</code></pre>
+<pre class="r"><code>bptest(fit)  #homoskedasticity</code></pre>
+<pre><code>## 
+##  studentized Breusch-Pagan test
+## 
+## data:  fit
+## BP = 12.909, df = 3, p-value = 0.004837</code></pre>
+<pre class="r"><code># regression with robust standard errors
+coeftest(fit, vcov = vcovHC(fit))</code></pre>
+<pre><code>## 
+## t test of coefficients:
+## 
+##                    Estimate Std. Error t value  Pr(&gt;|t|)    
+## (Intercept)        1.953354   0.035870 54.4568 &lt; 2.2e-16 ***
+## unrate_c           0.050614   0.015025  3.3687  0.000844 ***
+## jaildyes           0.346088   0.071635  4.8313 2.076e-06 ***
+## unrate_c:jaildyes -0.058805   0.023244 -2.5299  0.011872 *  
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1</code></pre>
+<p>A linear regression was performed predicting the traffic fatality rate (mrall) variable from the mean unemployment (unrate) variable and whether there is mandatory jail sentence (jaild) with interactions. The intercept means that the mean/predicted traffic fatality rate for states with no mandatory jail sentence with average unemployment rate is 1.95335. The coefficient ‘unrate_c’ means that the unemployment rate associated with traffic fatality rate for states with no mandatory jail sentence: for every 1-unit increase in unemployment rate, predicted traffic fatality rate goes up 0.05061 for this group. The coefficient ‘jaildyes’ means that states with mandatory jail sentence with average unemployment rate have predicted traffic fatality rate that is 0.34609 higher than states with no mandatory jail sentence with average unemployment rate. The coefficient ‘unrate_c:jailyes’ means that the slope of unemployment rate on traffic fatality rate for states with mandatory jail sentence is 0.0588 lower than for states with no mandatory jail sentence. Looking at the fitted values versus residuals plot, linearity is met. Normality is met using the Shapiro-Wilk test with a p-value&lt;0.05. Homoskedasticity is met using the Breusch-Pagan test with a p-value&lt;0.05. With the robust standard errors, there were no changes after the robust standard errors. All the coefficients are still significant with p-values&lt;0.05 for each. A proportion of 0.1028 of the variation in the outcome is explained by the overall model.</p>
+</div>
+<div id="bootstrapped-standard-errors" class="section level2">
+<h2>4. Bootstrapped Standard Errors</h2>
+<pre class="r"><code>fit &lt;- lm(mrall ~ unrate_c * jaild, data = fatality3)
+resids &lt;- fit$residuals  #save residuals
+fitted &lt;- fit$fitted.values  #save yhats/predictions
+
+resid_resamp &lt;- replicate(5000, {
+    new_resids &lt;- sample(resids, replace = TRUE)  #resample resids w/ replacement
+    fatality3$new_y &lt;- fitted + new_resids  #add new resids to yhats to get new &#39;data&#39;
+    fit &lt;- lm(new_y ~ unrate_c * jaild, data = fatality3)  #refit model
+    coef(fit)  #save coefficient estimates (b0, b1, etc)
+})
+resid_resamp %&gt;% t %&gt;% as.data.frame %&gt;% summarize_all(sd)</code></pre>
+<pre><code>##   (Intercept)   unrate_c   jaildyes unrate_c:jaildyes
+## 1  0.03432065 0.01431502 0.06541766        0.02480965</code></pre>
+<p>After computing the bootstrapped standard errors by residuals, the coefficient ‘jailyes’ is no longer significant with p-value&gt;0.05. The p-value of the coefficient ‘unrate_c’ is 0.01431502, which is higher than the robust SEs and original SEs. The p-value of the coefficient ‘unrate_c:jailyes’ is 0.02480965 which is higher than the robust SEs and original SEs.</p>
+</div>
+<div id="logistic-regression" class="section level2">
+<h2>5. Logistic Regression</h2>
+<pre class="r"><code># logistic regression
+fit &lt;- glm(jaild ~ comserd + unrate, data = fatality2, family = &quot;binomial&quot;)
+summary(fit)</code></pre>
+<pre><code>## 
+## Call:
+## glm(formula = jaild ~ comserd + unrate, family = &quot;binomial&quot;, 
+##     data = fatality2)
+## 
+## Deviance Residuals: 
+##     Min       1Q   Median       3Q      Max  
+## -1.9004  -0.6269  -0.4888   0.5379   2.2585  
+## 
+## Coefficients:
+##             Estimate Std. Error z value Pr(&gt;|z|)    
+## (Intercept) -3.27807    0.50393  -6.505 7.77e-11 ***
+## comserdyes   3.07349    0.36517   8.417  &lt; 2e-16 ***
+## unrate       0.21288    0.05737   3.711 0.000207 ***
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+## (Dispersion parameter for binomial family taken to be 1)
+## 
+##     Null deviance: 398.31  on 335  degrees of freedom
+## Residual deviance: 299.83  on 333  degrees of freedom
+## AIC: 305.83
+## 
+## Number of Fisher Scoring iterations: 4</code></pre>
+<pre class="r"><code>exp(coef(fit))</code></pre>
+<pre><code>## (Intercept)  comserdyes      unrate 
+##  0.03770103 21.61719832  1.23723760</code></pre>
+<pre class="r"><code># confusion matrix
+fatality2.1 &lt;- fatality2 %&gt;% mutate(prob = predict(fit, type = &quot;response&quot;), 
+    prediction = ifelse(prob &gt; 0.5, 1, 0))
+fat2.1 &lt;- fatality2.1 %&gt;% transmute(prob, prediction, truth = jaild)
+table(prediction = fat2.1$prediction, truth = fat2.1$truth) %&gt;% 
+    addmargins</code></pre>
+<pre><code>##           truth
+## prediction  no yes Sum
+##        0   227  45 272
+##        1    15  49  64
+##        Sum 242  94 336</code></pre>
+<pre class="r"><code># accuracy
+(227 + 49)/336</code></pre>
+<pre><code>## [1] 0.8214286</code></pre>
+<pre class="r"><code># sensitivity (TPR)
+227/272</code></pre>
+<pre><code>## [1] 0.8345588</code></pre>
+<pre class="r"><code># specificity (TNR)
+49/64</code></pre>
+<pre><code>## [1] 0.765625</code></pre>
+<pre class="r"><code># precision (PPV)
+227/242</code></pre>
+<pre><code>## [1] 0.9380165</code></pre>
+<pre class="r"><code># AUC
+ROCplot &lt;- ggplot(fat2.1) + geom_roc(aes(d = truth, m = prob), 
+    n.cuts = 0)
+calc_auc(ROCplot)</code></pre>
+<pre><code>##   PANEL group       AUC
+## 1     1    -1 0.8039828</code></pre>
+<pre class="r"><code>fatality3$logit &lt;- predict(fit, type = &quot;link&quot;)  #predicted logit/log-odds
+
+# density plot
+fatality3 %&gt;% ggplot() + geom_density(aes(logit, color = jaild, 
+    fill = jaild), alpha = 0.4) + theme(legend.position = c(0.85, 
+    0.85)) + geom_vline(xintercept = 0) + xlab(&quot;logit (log-odds)&quot;) + 
+    geom_rug(aes(logit, color = jaild))</code></pre>
+<p><img src="../../project/project2_files/figure-html/unnamed-chunk-6-1.png" width="768" style="display: block; margin: auto;" /></p>
+<pre class="r"><code># ROC curve
+library(plotROC)
+ROCplot &lt;- ggplot(fat2.1) + geom_roc(aes(d = truth, m = prob), 
+    n.cuts = 0)
+ROCplot</code></pre>
+<p><img src="../../project/project2_files/figure-html/unnamed-chunk-6-2.png" width="768" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>calc_auc(ROCplot)</code></pre>
+<pre><code>##   PANEL group       AUC
+## 1     1    -1 0.8039828</code></pre>
+<p>A logistic regression model was computed predicting whether or not there is mandatory jail sentence (jaild) from explanatory variable whether there is mandatory community service (comserd) and unemployment rate (unrate). The odds of mandatory jail sentence (jaild) for states with no mandatory community service (comserd) is 0.03770103. Controlling for unemployment rate (unrate), odds of mandatory jail sentence (jaild) for states with mandatory community service (comserd) is 21.61719832 times odds of mandatory jail sentence for states with no mandatory community service (comserd). Controlling for comserd, for every one additional unemployment rate, odds of mandatory jail sentence (jaild) increasing by a factor of 1.23723760. The accuracy of the model is 0.8214286, the sensitivity (TPR) is 0.8345588, the specificity (TNR) is 0.765625, the precision (PPV) is 0.9380165, and the AUC is 0.8039828 which is good. The probability that a randomly selected state with mandatory jail sentence has a higher probability than a randomly selected state without mandatory jail sentence.</p>
+</div>
+<div id="logistic-regression-2" class="section level2">
+<h2>6. Logistic Regression 2</h2>
+<pre class="r"><code># logistic regression
+fit &lt;- glm(jaild ~ ., data = fatality2, family = &quot;binomial&quot;)
+summary(fit)</code></pre>
+<pre><code>## 
+## Call:
+## glm(formula = jaild ~ ., family = &quot;binomial&quot;, data = fatality2)
+## 
+## Deviance Residuals: 
+##     Min       1Q   Median       3Q      Max  
+## -1.9909  -0.5831  -0.3800   0.4096   2.4431  
+## 
+## Coefficients:
+##               Estimate Std. Error z value Pr(&gt;|z|)    
+## (Intercept)  3.6901683  4.3035767   0.857 0.391188    
+## mlda        -0.2379810  0.1697986  -1.402 0.161050    
+## mrall        0.5596499  0.3081653   1.816 0.069360 .  
+## beertax     -1.6971582  0.4771035  -3.557 0.000375 ***
+## vmiles       0.1596583  0.1071041   1.491 0.136044    
+## unrate       0.1405490  0.0827984   1.697 0.089605 .  
+## perinc      -0.0002454  0.0001117  -2.197 0.028009 *  
+## comserdyes   3.6711799  0.4574929   8.025 1.02e-15 ***
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+## (Dispersion parameter for binomial family taken to be 1)
+## 
+##     Null deviance: 398.31  on 335  degrees of freedom
+## Residual deviance: 265.65  on 328  degrees of freedom
+## AIC: 281.65
+## 
+## Number of Fisher Scoring iterations: 5</code></pre>
+<pre class="r"><code>prob &lt;- predict(fit, type = &quot;response&quot;)
+
+# classification diagnostics
+class_diag(prob, fatality2$jaild)</code></pre>
+<pre><code>##           acc      sens      spec       ppv        f1     auc
+## yes 0.8303571 0.5851064 0.9256198 0.7534247 0.6586826 0.85968</code></pre>
+<pre class="r"><code># 10-fold CV
+set.seed(1234)
+k = 10
+data &lt;- fatality2[sample(nrow(fatality2)), ]
+folds &lt;- cut(seq(1:nrow(fatality2)), breaks = k, labels = F)
+diags &lt;- NULL
+for (i in 1:k) {
+    train &lt;- data[folds != i, ]
+    test &lt;- data[folds == i, ]
+    truth &lt;- test$jaild
+    fit &lt;- glm(jaild ~ ., data = train, family = &quot;binomial&quot;)
+    probs &lt;- predict(fit, newdata = test, type = &quot;response&quot;)
+    diags &lt;- rbind(diags, class_diag(probs, truth))
+}
+
+summarize_all(diags, mean)</code></pre>
+<pre><code>##         acc     sens      spec       ppv       f1       auc
+## 1 0.8122995 0.554513 0.9215694 0.7766667 0.613764 0.8428538</code></pre>
+<pre class="r"><code># LASSO
+library(glmnet)
+set.seed(1234)
+
+y &lt;- as.matrix(fatality2$jaild)  #reponse
+x &lt;- model.matrix(jaild ~ ., data = fatality2)[, -1]  #predictor 
+x &lt;- scale(x)
+
+cv1 &lt;- cv.glmnet(x, y, family = &quot;binomial&quot;)  #cross validation
+lasso_fit &lt;- glmnet(x, y, family = &quot;binomial&quot;, lambda = cv1$lambda.1se)
+coef(lasso_fit)</code></pre>
+<pre><code>## 8 x 1 sparse Matrix of class &quot;dgCMatrix&quot;
+##                     s0
+## (Intercept) -1.0581663
+## mlda         .        
+## mrall        0.2235990
+## beertax      .        
+## vmiles       .        
+## unrate       0.1005173
+## perinc       .        
+## comserdyes   0.7959609</code></pre>
+<pre class="r"><code># 10-fold CV of variables lasso selected
+set.seed(1234)
+k = 10
+
+data &lt;- fatality2 %&gt;% sample_frac
+folds &lt;- ntile(1:nrow(data), n = 10)
+
+diags &lt;- NULL
+for (i in 1:k) {
+    train &lt;- data[folds != i, ]
+    test &lt;- data[folds == i, ]
+    truth &lt;- test$jaild
+    
+    fit &lt;- glm(jaild ~ mrall + unrate + comserd, data = train, 
+        family = &quot;binomial&quot;)
+    probs &lt;- predict(fit, newdata = test, type = &quot;response&quot;)
+    
+    diags &lt;- rbind(diags, class_diag(probs, truth))
+}
+
+diags %&gt;% summarize_all(mean)</code></pre>
+<pre><code>##         acc      sens      spec      ppv        f1       auc
+## 1 0.8032086 0.5065765 0.9265188 0.765235 0.5744437 0.8372686</code></pre>
+<p>A logistic regression model was computed predicting whether or not there is mandatory jail sentence (jaild) from all the explanatory variables. The in-sample accuracy of the model is 0.8303571, the sensitivity (TPR) is 0.5851064, the specificity (TNR) is 0.9256198, the precision (PPV) is 0.7534247, the f1 is 0.6586826 and the AUC is 0.85968 which is good. For the 10-fold CV, the out-of-sample accuracy of the model is 0.8122995, the sensitivity (TPR) is 0.554513, the specificity (TNR) is 0.9215694, the precision (PPV) is 0.7766667, the f1 is 0.613764, and the AUC is 0.8428538 which is good and similar to the in-sample classification diagnostics. After LASSO was performed, the variables ‘mrall’ (traffic fatality rate), ‘unrate’ (unemployment rate), and ‘comserdyes’ (mandatory community service) were retained. For the 10-CV fold using the variables only lasso selected, accuracy of the model is 0.8032086, the sensitivity (TPR) is 0.5065765, the specificity (TNR) is 0.9265188, the precision (PPV) is 0.765235, the f1 is 0.5744437 and the AUC is 0.8372686 which is good and similar to the AUC of the logistic regressions above.</p>
+</div>
+
+            
+        <hr>         <div class="related-posts">
+                <h5>Related Posts</h5>
+                
+              </div> 
+            </div>
+          </div>
+
+   <hr>  <div class="disqus">
+  <div id="disqus_thread"></div>
+  <script type="text/javascript">
+
+    (function() {
+      
+      
+      if (window.location.hostname == "localhost")
+        return;
+
+      var disqus_shortname = '';
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+  </script>
+  <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+  <a href="http://disqus.com/" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+</div> 
+        </div>
+      </div>
+    </div>
+
+    
+    <footer>
+  <div id="footer">
+    <div class="container">
+      <p class="text-muted">&copy; All rights reserved. Powered by <a href="https://gohugo.io/">Hugo</a> and
+      <a href="http://www.github.com/nurlansu/hugo-sustain/">sustain</a> with ♥</p>
+    </div>
+  </div>
+</footer>
+<div class="footer"></div>
+
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+<script src="../../js/docs.min.js"></script>
+<script src="../../js/main.js"></script>
+
+<script src="../../js/ie10-viewport-bug-workaround.js"></script>
+
+
+    
+  </body>
+</html>

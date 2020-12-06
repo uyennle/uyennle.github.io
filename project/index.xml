@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Projects on My Website</title>
+    <link>/project/</link>
+    <description>Recent content in Projects on My Website</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-US</language><atom:link href="/project/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>project1</title>
+      <link>/project/project1/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>/project/project1/</guid>
+      <description>Uyen Le, utl243  Introduction The two datasets chosen were taken from the &#39;fivethirtyeight&#39; package. As the NBA season was coming to an end, I thought it would be interesting to look into data on the NBA. One of the dataset chosen was a statistical model draft projection system model of the top 50 ranking NBA players by ESPN&#39;s Stats &amp;amp; Information Group. The model assessses the probability that a player&#39;s early-career that will land him in the categories of superstar, role player, starter, and bust.</description>
+    </item>
+    
+    <item>
+      <title>project2</title>
+      <link>/project/project2/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>/project/project2/</guid>
+      <description>Uyen Le, utl243  Introduction The dataset I&#39;m using exhibits the drunk driving laws and traffic deaths. From the &#39;Fatality&#39; dataset, there were a total of 11 variables and 336 observations. Three variables were removed including the state ID code, the year, and a duplicate column of the observations. The remaining variables are &#39;mlda, mrall, beertax, vmiles, unrate, perinc, comserd, and jaild.&#39; The variable &#39;mlda&#39; is the minimum legal drinking age, &#39;mrall&#39; is traffic fatality rate (deaths per 10000), &#39;beertax&#39; is the tax on case of beer, &#39;vmiles&#39; is average miles per driver, &#39;unrate&#39; is unemployment rate, &#39;perinc&#39; is per capita personal income, &#39;comserd&#39; is mandatory community service, and &#39;jaild&#39; is mandatory jail sentence.</description>
+    </item>
+    
+  </channel>
+</rss>

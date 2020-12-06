@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="en-US">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="author" content="Uyen Le" />
+    
+    <link rel="shortcut icon" type="image/x-icon" href="../../img/favicon.ico">
+    <title>project1</title>
+    <meta name="generator" content="Hugo 0.79.0" />
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+    <link rel="stylesheet" type="text/css" href="../../css/main.css" />
+    <link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" />
+    <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:200,400,200bold,400old" />
+    
+    <!--[if lt IE 9]>
+			<script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+			<script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+		<![endif]-->
+
+    
+  </head>
+
+  <body>
+    <div id="wrap">
+      
+      <nav class="navbar navbar-default">
+  <div class="container">
+    <div class="navbar-header">
+      <a class="navbar-brand" href="../../"><i class="fa fa-home"></i></a>
+      <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#navbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+    </div>
+    <div class="navbar-collapse collapse" id="navbar">
+      <ul class="nav navbar-nav navbar-right">
+      
+        
+        <li><a href="../../post/">BLOG</a></li>
+        
+        <li><a href="../../projects/">PROJECTS</a></li>
+        
+        <li><a href="../../resume/">RESUME</a></li>
+        
+      
+      </ul>
+    </div>
+  </div>
+</nav>
+
+      <div class="container">
+        <div class="blog-post">
+          <h3>
+            <strong><a href="../../project/project1/">project1</a></strong>
+          </h3>
+        </div>
+ 
+<div class="blog-title">
+          <h4>
+         January 1, 0001 
+            &nbsp;&nbsp;
+            
+          </h4>
+        </div>
+
+        <div class="panel panel-default">
+          <div class="panel-body">
+            <div class="blogpost">
+              
+<script src="../../rmarkdown-libs/htmlwidgets/htmlwidgets.js"></script>
+<script src="../../rmarkdown-libs/plotly-binding/plotly.js"></script>
+<script src="../../rmarkdown-libs/typedarray/typedarray.min.js"></script>
+<script src="../../rmarkdown-libs/jquery/jquery.min.js"></script>
+<link href="../../rmarkdown-libs/crosstalk/css/crosstalk.css" rel="stylesheet" />
+<script src="../../rmarkdown-libs/crosstalk/js/crosstalk.min.js"></script>
+<link href="../../rmarkdown-libs/plotly-htmlwidgets-css/plotly-htmlwidgets.css" rel="stylesheet" />
+<script src="../../rmarkdown-libs/plotly-main/plotly-latest.min.js"></script>
+
+
+<div id="uyen-le-utl243" class="section level2">
+<h2>Uyen Le, utl243</h2>
+</div>
+<div id="introduction" class="section level2">
+<h2>Introduction</h2>
+<p>The two datasets chosen were taken from the 'fivethirtyeight' package. As the NBA season was coming to an end, I thought it would be interesting to look into data on the NBA. One of the dataset chosen was a statistical model draft projection system model of the top 50 ranking NBA players by ESPN's Stats &amp; Information Group. The model assessses the probability that a player's early-career that will land him in the categories of superstar, role player, starter, and bust. The 5 positions are center, power forward, point guard, small forward, and shooting guard. The second dataset was on whether NBA players have tattoos. Seeing whether the players have tattoos with their projected stats was something that was interesting.</p>
+<pre class="r"><code>library(tidyverse)
+NBA2015 &lt;- read_csv(&quot;/stor/home/utl243/NBA2015.csv&quot;)
+NBAtat &lt;- read_csv(&quot;/stor/home/utl243/NBAtat.csv&quot;)</code></pre>
+</div>
+<div id="joining" class="section level2">
+<h2>Joining</h2>
+<pre class="r"><code>NBA2015 &lt;- NBA2015 %&gt;% select(player, 2, 6, 8, 9)
+NBAjoin &lt;- NBA2015 %&gt;% full_join(NBAtat, by = c(player = &quot;player_name&quot;))
+NBAjoin &lt;- NBAjoin[, c(1, 6, 2:5)]
+head(NBAjoin)</code></pre>
+<pre><code>## # A tibble: 6 x 6
+##   player             tattoos position superstar role_player  bust
+##   &lt;chr&gt;              &lt;lgl&gt;   &lt;chr&gt;        &lt;dbl&gt;       &lt;dbl&gt; &lt;dbl&gt;
+## 1 Karl-Anthony Towns NA      C           0.135       0.163  0.275
+## 2 Justise Winslow    NA      SF          0.0835      0.177  0.229
+## 3 Stanley Johnson    NA      SF          0.0678      0.278  0.230
+## 4 Jahlil Okafor      NA      C           0.0587      0.236  0.296
+## 5 D`Angelo Russell   NA      PG          0.152       0.0966 0.409
+## 6 Dakari Johnson     NA      C           0.0213      0.418  0.194</code></pre>
+<p>From the NBA2015 dataset (projection model dataset), there were a total of 10 variables and 5 were removed. The 'id' variable was removed because it was repetitive from the 'player' variable. The draft year variable was also removed because I was not interested in the year. Other variables including 'projected_spm' and 'starter' were removed and potential problems include the correlation being affected. The tattoos dataset contained 2 variables and none was dropped. After removing some columns, the two datasets were joined by using 'full_join.' A full join was done because I didn't want any data to be dropped. The 'tattoos' variable were moved to the front to allow for easier visual of the data.</p>
+</div>
+<div id="wrangling" class="section level2">
+<h2>Wrangling</h2>
+<div id="a-countremoval-of-nas" class="section level3">
+<h3>A) Count/removal of NA's</h3>
+<pre class="r"><code># count of NA&#39;s
+NBAjoin %&gt;% select(everything()) %&gt;% summarize_all(funs(sum(is.na(.))))</code></pre>
+<pre><code>## # A tibble: 1 x 6
+##   player tattoos position superstar role_player  bust
+##    &lt;int&gt;   &lt;int&gt;    &lt;int&gt;     &lt;int&gt;       &lt;int&gt; &lt;int&gt;
+## 1      0     694      243       243         243   243</code></pre>
+<pre class="r"><code># proportions of NA&#39;s
+NBAjoin %&gt;% summarize_all(function(x) mean(!is.na(x)))</code></pre>
+<pre><code>## # A tibble: 1 x 6
+##   player tattoos position superstar role_player  bust
+##    &lt;dbl&gt;   &lt;dbl&gt;    &lt;dbl&gt;     &lt;dbl&gt;       &lt;dbl&gt; &lt;dbl&gt;
+## 1      1   0.479    0.818     0.818       0.818 0.818</code></pre>
+<pre class="r"><code># removal of NA&#39;s
+NBAjoin &lt;- NBAjoin %&gt;% na.omit()</code></pre>
+<p>After joining the dataset, &quot;player&quot; had 0 NA's or 100% of the data are not NA's, &quot;tattoos&quot; had 694 or 47.9% of the data are not NA's, &quot;position,&quot; &quot;superstar,&quot; &quot;role_player,&quot; and &quot;bust&quot; had 243 NA's each or 81.8% of the data are not NA's. All NA's were then removed and saved into the dataset.</p>
+</div>
+<div id="b-mutate-adding-column" class="section level3">
+<h3>B) Mutate/ adding column</h3>
+<pre class="r"><code>NBAjoin &lt;- NBAjoin %&gt;% mutate(`superstar*role_player` = ((superstar * 
+    role_player) * 100))
+head(NBAjoin)</code></pre>
+<pre><code>## # A tibble: 6 x 7
+##   player       tattoos position superstar role_player  bust `superstar*role_pla…
+##   &lt;chr&gt;        &lt;lgl&gt;   &lt;chr&gt;        &lt;dbl&gt;       &lt;dbl&gt; &lt;dbl&gt;                &lt;dbl&gt;
+## 1 Josh Smith   TRUE    C         0              0.382 0.591               0     
+## 2 Marcus Thor… TRUE    SG        0.000489       0.390 0.588               0.0191
+## 3 Victor Olad… FALSE   SG        0.160          0.175 0.236               2.80  
+## 4 Otto Porter  FALSE   SF        0.112          0.128 0.261               1.43  
+## 5 Alex Len     FALSE   C         0.0714         0.246 0.282               1.75  
+## 6 Anthony Ben… TRUE    PF        0.0659         0.203 0.344               1.34</code></pre>
+<p>A new variable was added by using 'mutate' by multiplying &quot;superstar&quot; and &quot;role_player,&quot; and the result of that was mutiplied by 100 to get the probability of becoming a superstar and a role player shown in percentages.</p>
+</div>
+<div id="c-statistics" class="section level3">
+<h3>C) Statistics</h3>
+<pre class="r"><code># overall mean
+NBAjoin %&gt;% select(4, 5, 6) %&gt;% summarize_all(mean)</code></pre>
+<pre><code>## # A tibble: 1 x 3
+##   superstar role_player  bust
+##       &lt;dbl&gt;       &lt;dbl&gt; &lt;dbl&gt;
+## 1    0.0218       0.336 0.448</code></pre>
+<pre class="r"><code># overall standard deviation
+NBAjoin %&gt;% select(4, 5, 6) %&gt;% summarize_all(sd)</code></pre>
+<pre><code>## # A tibble: 1 x 3
+##   superstar role_player  bust
+##       &lt;dbl&gt;       &lt;dbl&gt; &lt;dbl&gt;
+## 1    0.0374      0.0919 0.110</code></pre>
+<pre class="r"><code># statistical data for &#39;superstar&#39; grouped by &#39;tattoos&#39; and
+# &#39;position&#39;
+NBA_stats_super &lt;- NBAjoin %&gt;% group_by(tattoos, position) %&gt;% 
+    summarize(median_super = median(superstar, na.rm = T), mean_super = mean(superstar, 
+        na.rm = T), n_super = n(), sd_super = sd(superstar, na.rm = T), 
+        se_super = sd_super/sqrt(n_super))
+head(NBA_stats_super)</code></pre>
+<pre><code>## # A tibble: 6 x 7
+## # Groups:   tattoos [2]
+##   tattoos position median_super mean_super n_super sd_super se_super
+##   &lt;lgl&gt;   &lt;chr&gt;           &lt;dbl&gt;      &lt;dbl&gt;   &lt;int&gt;    &lt;dbl&gt;    &lt;dbl&gt;
+## 1 FALSE   C             0.00308     0.0123      27   0.0220  0.00423
+## 2 FALSE   PF            0.00240     0.0206      44   0.0414  0.00624
+## 3 FALSE   PG            0.00306     0.0249      37   0.0464  0.00763
+## 4 FALSE   SF            0.00221     0.0184      38   0.0307  0.00498
+## 5 FALSE   SG            0.00772     0.0351      28   0.0534  0.0101 
+## 6 TRUE    C             0.00304     0.0205      21   0.0368  0.00804</code></pre>
+<pre class="r"><code>NBA_stats_super %&gt;% summarize_all(mean)</code></pre>
+<pre><code>## # A tibble: 2 x 7
+##   tattoos position median_super mean_super n_super sd_super se_super
+##   &lt;lgl&gt;      &lt;dbl&gt;        &lt;dbl&gt;      &lt;dbl&gt;   &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;
+## 1 FALSE         NA      0.00370     0.0223    34.8   0.0388  0.00663
+## 2 TRUE          NA      0.00423     0.0216    44.4   0.0352  0.00555</code></pre>
+<pre class="r"><code># statistical data for &#39;role_player&#39; grouped by &#39;tattoos&#39; and
+# &#39;position&#39;
+NBA_stats_role &lt;- NBAjoin %&gt;% group_by(tattoos, position) %&gt;% 
+    summarize(median_role = median(role_player, na.rm = T), mean_role = mean(role_player, 
+        na.rm = T), n_role = n(), sd_role = sd(role_player, na.rm = T), 
+        se_role = sd_role/sqrt(n_role))
+head(NBA_stats_role)</code></pre>
+<pre><code>## # A tibble: 6 x 7
+## # Groups:   tattoos [2]
+##   tattoos position median_role mean_role n_role sd_role se_role
+##   &lt;lgl&gt;   &lt;chr&gt;          &lt;dbl&gt;     &lt;dbl&gt;  &lt;int&gt;   &lt;dbl&gt;   &lt;dbl&gt;
+## 1 FALSE   C              0.380     0.364     27  0.0608  0.0117
+## 2 FALSE   PF             0.364     0.346     44  0.0905  0.0136
+## 3 FALSE   PG             0.333     0.299     37  0.0944  0.0155
+## 4 FALSE   SF             0.381     0.343     38  0.101   0.0163
+## 5 FALSE   SG             0.376     0.346     28  0.0977  0.0185
+## 6 TRUE    C              0.348     0.327     21  0.0844  0.0184</code></pre>
+<pre class="r"><code>NBA_stats_role %&gt;% summarize_all(mean)</code></pre>
+<pre><code>## # A tibble: 2 x 7
+##   tattoos position median_role mean_role n_role sd_role se_role
+##   &lt;lgl&gt;      &lt;dbl&gt;       &lt;dbl&gt;     &lt;dbl&gt;  &lt;dbl&gt;   &lt;dbl&gt;   &lt;dbl&gt;
+## 1 FALSE         NA       0.367     0.340   34.8  0.0888  0.0151
+## 2 TRUE          NA       0.348     0.331   44.4  0.0888  0.0139</code></pre>
+<pre class="r"><code># statistical data for &#39;bust&#39; grouped by &#39;tattoos&#39; and
+# &#39;position&#39;
+NBA_stats_bust &lt;- NBAjoin %&gt;% group_by(tattoos, position) %&gt;% 
+    summarize(median_bust = median(bust, na.rm = T), mean_bust = mean(bust, 
+        na.rm = T), n_bust = n(), sd_bust = sd(bust, na.rm = T), 
+        se_bust = sd_bust/sqrt(n_bust))
+head(NBA_stats_bust)</code></pre>
+<pre><code>## # A tibble: 6 x 7
+## # Groups:   tattoos [2]
+##   tattoos position median_bust mean_bust n_bust sd_bust se_bust
+##   &lt;lgl&gt;   &lt;chr&gt;          &lt;dbl&gt;     &lt;dbl&gt;  &lt;int&gt;   &lt;dbl&gt;   &lt;dbl&gt;
+## 1 FALSE   C              0.413     0.431     27  0.129   0.0249
+## 2 FALSE   PF             0.450     0.445     44  0.128   0.0193
+## 3 FALSE   PG             0.521     0.491     37  0.114   0.0188
+## 4 FALSE   SF             0.445     0.442     38  0.107   0.0174
+## 5 FALSE   SG             0.426     0.437     28  0.0982  0.0186
+## 6 TRUE    C              0.428     0.454     21  0.140   0.0305</code></pre>
+<pre class="r"><code>NBA_stats_bust %&gt;% summarize_all(mean)</code></pre>
+<pre><code>## # A tibble: 2 x 7
+##   tattoos position median_bust mean_bust n_bust sd_bust se_bust
+##   &lt;lgl&gt;      &lt;dbl&gt;       &lt;dbl&gt;     &lt;dbl&gt;  &lt;dbl&gt;   &lt;dbl&gt;   &lt;dbl&gt;
+## 1 FALSE         NA       0.451     0.449   34.8   0.115  0.0198
+## 2 TRUE          NA       0.435     0.447   44.4   0.107  0.0173</code></pre>
+<pre class="r"><code># min and max for numeric variables filtered by &#39;tattoos&#39; and
+# grouped by &#39;position&#39;
+NBAjoin %&gt;% filter(tattoos == &quot;TRUE&quot;) %&gt;% group_by(position) %&gt;% 
+    summarize(min_super = min(superstar, na.rm = T), min_role = min(role_player, 
+        na.rm = T), min_bust = min(bust, na.rm = T), max_super = max(superstar, 
+        na.rm = T), max_role = max(role_player, na.rm = T), max_bust = max(bust, 
+        na.rm = T)) %&gt;% arrange(min_super) %&gt;% head()</code></pre>
+<pre><code>## # A tibble: 5 x 7
+##   position min_super min_role min_bust max_super max_role max_bust
+##   &lt;chr&gt;        &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;     &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;
+## 1 C         0          0.164     0.245     0.126    0.465    0.730
+## 2 PF        0          0.109     0.218     0.146    0.516    0.744
+## 3 SF        0          0.123     0.250     0.110    0.461    0.728
+## 4 SG        0          0.137     0.238     0.133    0.486    0.637
+## 5 PG        0.000105   0.0996    0.303     0.145    0.480    0.663</code></pre>
+<p>The overall mean for the probability for 'superstar' is 0.02, for 'role_player' is 0.34, and for 'bust' is 0.45, on average. The overall standard deviation for the probability for 'superstar' is 0.04, for 'role_player' is 0.04, and for 'bust' is 0.11, on average. Various summary statistics were computed for each numeric variables. The statistics for each variable were grouped by the two categorical variables, 'position' and 'tattoos.' For the variable 'superstar' with no tattoos, the average medium was 0.37%, for the count it was 34.8, and the standard error was 0.007. For the variable 'superstar' with tattoos, the average medium was 0.42%, for the count it was 44.4, and the standard error was 0.006. For the variable 'role_player' with no tattoos, the average medium was 36.7% and the standard error was 0.015. For the variable 'role_player' with tattoos, the average medium was 34.8% and the standard error was 0.014. For the variable 'bust' with no tattoos, the average medium was 45.1% and the standard error was 0.019. For the variable 'bust' with tattoos, the average medium was 43.5% and the standard error was 0.017. The minimum and maximum values for each variable were also computed and was filtered by players with tattoos.</p>
+</div>
+</div>
+<div id="correlation-matrix" class="section level2">
+<h2>Correlation matrix</h2>
+<pre class="r"><code>NBA_nums &lt;- NBAjoin %&gt;% select_if(is.numeric)
+cor(NBA_nums)</code></pre>
+<pre><code>##                        superstar role_player       bust superstar*role_player
+## superstar              1.0000000  -0.7964630 -0.5656733             0.9428814
+## role_player           -0.7964630   1.0000000  0.2690131            -0.7142192
+## bust                  -0.5656733   0.2690131  1.0000000            -0.6298824
+## superstar*role_player  0.9428814  -0.7142192 -0.6298824             1.0000000</code></pre>
+<p>The two variables that were most correlated were 'superstar' and 'role_player' with a negative correaltion of -0.796, and the variables least correlated were 'bust' and role_player' with a positive correaltion of 0.269.</p>
+</div>
+<div id="tidying" class="section level2">
+<h2>Tidying</h2>
+<pre class="r"><code># reshape statistical data for &#39;bust&#39;
+NBA_stats_bustpivot &lt;- NBA_stats_bust %&gt;% pivot_longer(contains(&quot;_&quot;)) %&gt;% 
+    separate(name, into = c(&quot;stat&quot;, &quot;var&quot;), sep = &quot;_&quot;) %&gt;% pivot_wider(names_from = &quot;var&quot;, 
+    values_from = &quot;value&quot;)
+
+# reshape statistical data for &#39;role_player&#39;
+NBA_stats_rolepivot &lt;- NBA_stats_role %&gt;% pivot_longer(contains(&quot;_&quot;)) %&gt;% 
+    separate(name, into = c(&quot;stat&quot;, &quot;var&quot;), sep = &quot;_&quot;) %&gt;% pivot_wider(names_from = &quot;var&quot;, 
+    values_from = &quot;value&quot;)
+
+# reshape statistical data for &#39;superstar&#39;
+NBA_stats_superpivot &lt;- NBA_stats_super %&gt;% pivot_longer(contains(&quot;_&quot;)) %&gt;% 
+    separate(name, into = c(&quot;stat&quot;, &quot;var&quot;), sep = &quot;_&quot;) %&gt;% pivot_wider(names_from = &quot;var&quot;, 
+    values_from = &quot;value&quot;)
+
+# joined statistical data
+NBA_stats_bustpivot %&gt;% full_join(NBA_stats_rolepivot, by = &quot;stat&quot;) %&gt;% 
+    inner_join(NBA_stats_superpivot, by = &quot;stat&quot;) %&gt;% select(-1, 
+    -2, -5, -6, -8, -9, ) %&gt;% head()</code></pre>
+<pre><code>## # A tibble: 6 x 4
+##   stat    bust  role   super
+##   &lt;chr&gt;  &lt;dbl&gt; &lt;dbl&gt;   &lt;dbl&gt;
+## 1 median 0.413 0.380 0.00308
+## 2 median 0.413 0.380 0.00240
+## 3 median 0.413 0.380 0.00306
+## 4 median 0.413 0.380 0.00221
+## 5 median 0.413 0.380 0.00772
+## 6 median 0.413 0.380 0.00304</code></pre>
+<p>The statistical data was rearranged by using both 'pivot_wider' and &quot;pivot_longer' to show the statisical summary for each variable. The variables were separated from its statistical data into two separate columns. After the data for each variable was reshaped, all three data was joined by using 'full_join' to have all the statistical summaries into one datatset. Some variables such as 'tattoos' and 'position' were removed from the joined data to allow for a cleaner visual.</p>
+</div>
+<div id="visualizing" class="section level2">
+<h2>Visualizing</h2>
+<div id="a-correlation-heatmap" class="section level3">
+<h3>A) Correlation heatmap</h3>
+<pre class="r"><code>NBAjoin %&gt;% select_if(is.numeric) %&gt;% cor %&gt;% as.data.frame %&gt;% 
+    rownames_to_column %&gt;% pivot_longer(-1) %&gt;% ggplot(aes(rowname, 
+    name, fill = value)) + geom_tile() + geom_text(aes(label = round(value, 
+    2))) + xlab(&quot;&quot;) + ylab(&quot;&quot;) + coord_flip()</code></pre>
+<p><img src="../../project/project1_files/figure-html/unnamed-chunk-8-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p>The correlation heatmap shows a visual of the correlation between all the numeric variables. The correlation for each variale matches the correlation matrix computed above.</p>
+</div>
+<div id="b-ggplots" class="section level3">
+<h3>B) ggplots</h3>
+<pre class="r"><code># recode variables
+NBA_names &lt;- NBAjoin %&gt;% mutate(position = recode(position, C = &quot;center&quot;, 
+    PF = &quot;power forward&quot;, PG = &quot;point guard&quot;, SF = &quot;small forward&quot;, 
+    SG = &quot;shooting guard&quot;))
+
+# bar chart
+ggplot(NBA_names, aes(x = position, y = superstar)) + geom_bar(stat = &quot;summary&quot;, 
+    aes(fill = position)) + geom_errorbar(stat = &quot;summary&quot;, width = 0.5) + 
+    ylab(&quot;% chance of superstar&quot;) + ggtitle(&quot;Probability of becoming a superstar based on position&quot;) + 
+    scale_y_continuous(labels = scales::percent) + scale_fill_brewer() + 
+    theme_minimal()</code></pre>
+<p><img src="../../project/project1_files/figure-html/unnamed-chunk-9-1.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code># scatterplot
+ggplot(NBA_names, aes(bust, superstar, color = tattoos)) + geom_point(size = 1) + 
+    xlab(&quot;% bust&quot;) + ylab(&quot;% superstar&quot;) + ggtitle(&quot;Probabilty of becoming a bust vs. superstar&quot;) + 
+    scale_y_continuous(labels = scales::percent, breaks = seq(0, 
+        20, 0.02)) + scale_x_continuous(labels = scales::percent) + 
+    theme_dark()</code></pre>
+<p><img src="../../project/project1_files/figure-html/unnamed-chunk-9-2.png" width="672" style="display: block; margin: auto;" /></p>
+<p>Before beginning to make plots, the dataset was mutated to change the position letters into acutal names to make the graph easier to read. The first plot is a bar chart representing the probability of becoming a Superstar based on the different NBA positions. The position wth the lowest probaility of becoming a Superstar is 'center' and then 'small forward,' 'power forward,' 'shooting guard,' and with 'point guard' having the highest probability of becoming a Superstar. The bar chart includes error bars on each position. The position 'small forward' seems to have the smallest error bar which means it has a low spread. The position 'shooting guard' have the biggest error bar which means that it has a high spread. The exact value of the errors can be shown under 'Statistics' above in 'overall standard deviation.'</p>
+<p>The second plot is a scatterplot representing the probability of becoming a Bust versus the probability of becoming a Superstar sorted by whether or not players have tattoos. According to this graph, whether of or not players have tattoos does not affect the chance of becoming a Superstar or Bust. The points indicating the presence of tattoos are scattered/ randomized along the trend between chance of becoming a Bust versus Superstar. The graph starts off with a negative correlation then flattens out. Accordingt o the correlaition matrix comouted above, 'bust and 'superstar' has a correlation of about -0.57, which is neither strong or weak.</p>
+</div>
+</div>
+<div id="dimensionality-reduction" class="section level2">
+<h2>Dimensionality Reduction</h2>
+<pre class="r"><code># process data and scale numeric variables
+pam_dataNBA &lt;- NBAjoin %&gt;% select(4:6) %&gt;% scale %&gt;% as.data.frame()
+
+# identify and choosse number of clusters k by using the
+# silhouette method
+library(cluster)
+sil_width &lt;- vector()
+for (i in 2:10) {
+    kms &lt;- kmeans(pam_dataNBA, centers = i)
+    sil &lt;- silhouette(kms$cluster, dist(pam_dataNBA))
+    sil_width[i] &lt;- mean(sil[, 3])
+}
+ggplot() + geom_line(aes(x = 1:10, y = sil_width)) + scale_x_continuous(name = &quot;k&quot;, 
+    breaks = 1:10)</code></pre>
+<p><img src="../../project/project1_files/figure-html/unnamed-chunk-10-1.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code># PAM cluster analysis
+pam2 &lt;- pam_dataNBA %&gt;% pam(2)
+pam2</code></pre>
+<pre><code>## Medoids:
+##       ID  superstar role_player       bust
+## [1,] 198 -0.4901723   0.4032963  0.3815352
+## [2,] 254  1.5412256  -1.5004477 -1.0224317
+## Clustering vector:
+##   [1] 1 1 2 2 2 2 2 1 2 2 1 2 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1
+##  [38] 1 2 2 2 2 2 2 2 2 2 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1
+##  [75] 1 1 1 1 1 1 1 2 2 2 2 2 1 1 1 1 1 1 1 1 1 1 1 1 1 1
+##  [ reached getOption(&quot;max.print&quot;) -- omitted 296 entries ]
+## Objective function:
+##    build     swap 
+## 1.024402 1.011006 
+## 
+## Available components:
+##  [1] &quot;medoids&quot;    &quot;id.med&quot;     &quot;clustering&quot; &quot;objective&quot;  &quot;isolation&quot; 
+##  [6] &quot;clusinfo&quot;   &quot;silinfo&quot;    &quot;diss&quot;       &quot;call&quot;       &quot;data&quot;</code></pre>
+<pre class="r"><code># visualize clusters
+pamclust &lt;- pam_dataNBA %&gt;% mutate(cluster = as.factor(pam2$clustering))
+
+library(plotly)
+pamclust %&gt;% plot_ly(x = ~superstar, y = ~role_player, z = ~bust, 
+    color = ~cluster, type = &quot;scatter3d&quot;, mode = &quot;markers&quot;, size = 1)</code></pre>
+<div id="htmlwidget-1" style="width:672px;height:480px;" class="plotly html-widget"></div>
+<script type="application/json" data-for="htmlwidget-1">{"x":{"visdat":{"98050f990a5":["function () ","plotlyVisDat"]},"cur_data":"98050f990a5","attrs":{"98050f990a5":{"x":{},"y":{},"z":{},"mode":"markers","color":{},"size":1,"alpha_stroke":1,"sizes":[10,100],"spans":[1,20],"type":"scatter3d"}},"layout":{"margin":{"b":40,"l":60,"t":25,"r":10},"scene":{"xaxis":{"title":"superstar"},"yaxis":{"title":"role_player"},"zaxis":{"title":"bust"}},"hovermode":"closest","showlegend":true},"source":"A","config":{"showSendToCloud":false},"data":[{"x":[-0.582954272619291,-0.569867262557732,-0.148544073207844,-0.330623435152036,-0.560776959112064,-0.434676152232794,-0.182613097532656,-0.490265511486951,-0.550578905418203,-0.366403958085506,-0.379851034456943,-0.551657900649449,-0.555898663799871,-0.565121695053994,-0.554744611287181,-0.484483773665578,-0.502355538300482,-0.582954272619291,-0.579719747820027,-0.501016731460304,-0.535847242131567,-0.57955676705886,-0.578425584815463,-0.582954272619291,-0.582954272619291,-0.578488605113068,-0.563087899515858,-0.560352000084873,-0.582954272619291,-0.582954272619291,-0.139473403420258,-0.0279860566463346,0.225752706697182,0.386245824538302,0.388390413825454,-0.00607066790742364,-0.46845842885373,-0.363613678236427,-0.0751348688424038,-0.257567369143553,-0.53259829970055,-0.466644241398507,-0.516709427536573,-0.491064660218388,-0.549512722887532,-0.439350220052534,-0.572824107514278,-0.579189425060974,-0.530741982801894,-0.56754572960816,-0.557467082793973,-0.567451841134223,-0.582954272619291,-0.570749840961593,-0.566087649632573,-0.574687004630765,-0.582954272619291,-0.582954272619291,-0.572681268639399,-0.573649363126217,-0.582954272619291,-0.582954272619291,-0.566064324632781,-0.572166112479982,0.415382627863328,-0.322576604460865,0.126022577508092,-0.0346027866621294,-0.335081559481721,-0.523843935099376,-0.457487119318111,-0.265565891406254,-0.476850480241377,-0.533125680085776,-0.424277428643926,-0.270668101366688,-0.558250610195274,-0.582954272619291,-0.266390424799162,-0.462959827641081,-0.408457943004562,-0.560178961754988,-0.507492441523222,-0.531260322074815,-0.468977624089946,-0.576384567087024,-0.509407793140391,-0.57267003412115,-0.459195889543765,-0.400452252049264,-0.5464165699047,-0.528477237667185,-0.572501115114622,-0.582954272619291,-0.567249566308037,-0.582954272619291,-0.527252594931498,-0.582954272619291,-0.582954272619291,-0.57790066532471,-0.582954272619291,-0.564978642188291,-0.582954272619291,-0.582954272619291,-0.345110078945435,-0.175292391204304,-0.366124245329962,0.0542637506222656,-0.511642633057476,-0.523898369015178,-0.502663390849354,-0.522381682302726,-0.484665211135297,-0.429907714459763,-0.41870599030463,-0.46978934478228,-0.576582588845587,-0.461330662001876,-0.582954272619291,-0.535677146175508,-0.56420859620889,-0.545447753198852,-0.582954272619291,-0.563667948392589,-0.539555703107816,-0.503798264434462,-0.557609252947528,-0.531865193887105,-0.555946383753576,-0.582954272619291,-0.582954272619291,-0.529807752362941,-0.471500709646673,-0.540598373396723,-0.56732695073969,-0.582954272619291,-0.567678484165468,-0.471415701791924,-0.536043953196334,-0.580477013197478,-0.582954272619291,-0.198056440801506,0.256715306479621,-0.47316641421904,0.543703643037106,-0.546838452813798,-0.483756953832581,-0.470327210717872,-0.426271849870484,0.00516050673483312,-0.480523418740877,-0.382974872502602,-0.577659684908272,-0.575154949064684,-0.418952454235928,-0.40518439162881,-0.554173683769315,-0.466935857393624,-0.490172264985485,-0.528176848048292,-0.582954272619291,-0.532827885105622,-0.574215984078755,-0.512809658763858,-0.56093929790076,-0.420211068014891,-0.570888025536054,-0.582954272619291,-0.57036273156136,-0.572878541430079,-0.570125041253838,-0.563421992689497,-0.558437129947058,-0.582954272619291,-0.557545242942362,-0.575630677414818,-0.582954272619291,-0.582954272619291,0.0033744590729382,-0.321782832248876,-0.292760032535224,-0.297319535017678,-0.373477505012383,-0.467092953407138,-0.31383842291574,-0.186386986203278,-0.506013176456081,-0.208284533457256,-0.27607003222469,-0.542045058360943,-0.388276468413101,-0.441612022813416,-0.496040829583611,-0.518428522819475,-0.41598389328178,-0.560415582108391,-0.582954272619291,-0.513151723095683,-0.582954272619291,-0.570141277807592,-0.582954272619291,-0.574647630319189,-0.573562750340288,-0.582954272619291,-0.0319492736983032,0.338451749761953,-0.276836600853205,-0.197130876990916,-0.240342659262078,-0.293053226712667,-0.403396685538031,-0.465359173003953,-0.55055413598035,-0.511074487420318,-0.56972763354521,-0.528250407393969,-0.50050358146486,-0.515104442860456,-0.576884262409422,-0.576874418831528,-0.573414534945962,-0.519524129088418,-0.546149001128406,-0.577435716762324,-0.575783921593504,-0.4197609115682,0.401350527328508,-0.297361905200788,-0.408850054440301,-0.343718015138987,-0.548165302916697,-0.314509738878817,-0.582954272619291,-0.516480136368884,-0.538007987725915,-0.51188941797501,-0.554144714761544,-0.576879260373916,-0.573377086551799,-0.582954272619291,-0.582954272619291,-0.582954272619291,-0.296403413552188,-0.396853996347266,-0.413392705145382,-0.385280168898419,0.149662438049353,-0.325169932505501,-0.494702450725081,-0.531640369777862,-0.392662531332875,-0.580150297357489,-0.531459066052408,-0.528091224969924,-0.546525090001213,-0.576202407398274,-0.578461562022712,-0.548338822725936,-0.582954272619291,-0.575870186644343,-0.30252274864694,-0.0641361149836341,-0.370710175679154,-0.573634838499052,-0.357310551772893,-0.391666725034377,-0.369766797132484,-0.582954272619291,-0.429228534333912,-0.422697721633869,-0.558773282782376,-0.572189678219452,-0.477462306755441,-0.577040368715376,-0.569335762849148,-0.582954272619291,-0.529530045771369,-0.569903480504658,-0.49379999792346,-0.578634493357186,-0.52536738927163,-0.461797643477088,-0.577659417419742,-0.539809094992034,-0.569555156941237,-0.549634109182326,-0.582954272619291,-0.328249153464401,-0.269558371703375,-0.501652043467278,0.252985339425581,-0.441514041764973,-0.582954272619291,-0.576759211521771,-0.582954272619291,-0.574697623925396,-0.582954272619291,-0.582954272619291,-0.315226688385066,-0.0299896259806102,-0.514501523714433,-0.30044842859655,-0.423183534301574,-0.4777835337308,-0.549751081916379,-0.504644705137956,-0.475395770621265,-0.310995180337773,-0.54521546615963,-0.582954272619291],"y":[0.50289519517494,0.586578908213635,0.429939355563704,0.879122906152114,1.00661773980157,-0.840745644303139,0.118878915010458,1.04317740578617,0.912912277101467,1.0969723980618,0.164848330610639,0.475831981442081,0.725440470520371,0.222795854676691,0.91404576608274,0.654872968623314,0.53426156041328,0.746324728613901,0.689400998589983,0.287849665212672,0.404895199002463,0.130036993686782,1.17244382195187,0.284198426562933,0.651092100392188,0.788986963126155,0.321668938125398,0.738521012580519,0.265494193524632,-0.0240435907221746,0.569343266363303,-0.504952362753453,-0.485217643639731,-0.0189774930151539,-0.678122086368964,-0.532551537623827,1.12943189333595,0.411950071070306,0.141960488632215,0.53590372009388,0.188291295792625,1.00944775171272,0.926945079176381,0.488322014132407,0.56530308456263,0.2887631767225,0.629113406500261,1.15266308558811,0.126215668577994,0.477529363998996,0.322837889442416,0.703988978275233,0.726800346091147,0.701929758022536,0.672813058511033,0.23772929561854,0.402655837918753,0.312638294915884,0.415426054617399,0.207376931202889,-0.259301052500364,-0.0211773547804359,0.133058517444853,-0.949508094849071,0.140027263588355,0.0163292175922957,-0.891006111342109,0.46200430378912,0.561205993275626,0.484272452603775,0.173994675267218,0.960231677120784,0.516048370279305,0.832402350620503,0.246454967093183,-0.725643879590144,0.954721870403421,0.777986598808316,0.0803916169984412,1.46634544302066,0.887030996142069,1.12381954072964,-0.100714009350248,0.758711899855989,0.246941211319981,0.868840482751787,0.178486999128312,0.869817661069362,0.711011434786713,0.274486316737663,0.307492284538192,0.319456192835868,0.748817407640588,1.35810478608811,0.195055864192054,1.21465465433584,0.585521186106802,1.33123882955758,-0.097967109228124,0.727443390642614,0.278552972874903,-0.484166787667864,0.231461243444972,-0.777076410013644,1.04938994128684,0.603423898540306,0.829591631351663,0.113779890323393,0.877983182154461,-0.259759266356839,0.859380026022187,0.331932972035878,1.33322913818945,0.464727254049023,0.348012709313763,0.28391872133423,0.916679271605046,0.663941827151373,0.423742304231112,0.444899477587864,1.14118723870351,0.612365390808806,0.718258515108197,0.765190321264591,0.839203197457298,1.04173054466401,0.584557837991354,0.210396126351003,0.221416196802637,0.668712245800639,0.514426569613796,0.124820232739277,0.496013314887914,0.488262819561539,0.25127156621281,0.405772388549505,-0.0246858300533764,0.202412813554356,-0.0103253577371887,-0.0196275233964926,-0.985848719158747,0.24437359240183,-0.372859590811863,-0.181106395435163,0.328204856613497,0.901414526049372,-0.525429331731621,-0.132775584355633,0.571240408834186,-1.38700503758907,-0.0651433605974009,1.18588782302969,0.660254364471043,0.863762796401756,-0.996687941491296,-0.496808169124035,0.762403312468162,0.144310164892295,0.40329634711452,0.517323305993427,1.54004126917451,1.43837852187877,0.652150780058256,-0.442826093712937,0.703954593193626,-0.810911994077423,-0.174238541214654,-0.0951240288096956,1.06856638160407,-0.195916224184906,0.72328416681891,0.282717397986268,0.401758093492231,0.170502315280942,0.355667416072612,0.4441159873882,0.160218651406152,0.00254504359637992,0.344511655124891,-0.296305341529117,0.64556106415134,0.860347563459287,1.56762981296111,1.30879707960623,0.986024177105236,-0.448788303643238,1.3381636694339,1.16063422214859,-0.0483954319567847,0.98203779272338,0.545231467818645,0.72365877922539,0.731303192222466,0.175061069813937,-1.30612158683712,1.18040085627634,1.02451484833728,0.861634251036744,0.903148948738499,1.18553293851971,0.785706561052733,0.00352465933746232,0.0203968639328349,-0.753826937085182,-0.077116006623093,0.509372441397208,1.15324904655157,0.830677438235593,0.278316978048989,1.2615222604981,0.663199729625897,0.711239986765849,1.03380776484489,0.796986717650115,-0.146085810055831,0.137436151824891,0.854027901019244,0.780671725478452,0.074181725667021,1.63550625784959,0.794134398961344,-0.79740866785248,0.462509329234543,0.299011552363224,-0.842556454103936,-0.104235226689822,-0.528751431157169,-0.283418172027587,0.880320518958041,-0.127776874879749,0.0958813019234107,0.461900963561265,1.92406287032156,1.40483224039875,0.633994586461451,0.564044536169045,0.62597802024411,0.334987651282448,1.08911324152501,0.751488551769627,-0.638423704433605,-0.976145629976721,0.228552026151225,0.381603158213479,0.0152333454550472,-0.44492251731817,0.314156679184054,0.338715668772636,-0.426038034635306,1.21810388063114,0.585374418391386,0.777587971251485,-0.522103064747132,0.9602074769874,0.564805121116562,0.411837993114436,0.44862665721372,0.718086861734036,0.158720397644619,-0.476680339300435,1.32636359081619,-0.106484043670974,-0.716994910786466,0.194065486790938,0.785651838718745,0.132522567188694,0.281671471268189,1.54835980387276,0.243558927120267,-0.918654796377454,0.710149979678913,0.598842195229744,-0.723999859197849,1.5660362167676,1.35645750128933,0.555979885244229,0.988434201359808,1.45639954728452,0.202122096394454,0.735047259711189,0.462869589133859,0.0660742892545862,1.07046405726134,0.497749271848088,0.454051480549011,0.267346123965744,-0.965145994709663,1.04099968757819,1.23482067771528,-0.859545829129291,-0.767738967001628,1.96577219193775,0.897568815824166,0.885046802831675,0.867240651541899,0.298381304285165,0.713125464424237,-0.0336480404216801,0.59619948408116,0.491078391914682,-0.307213486363849,1.00146567939054,0.816381644693162,0.425227946502271,-0.423996061330186,0.978903636060337,0.675111385657157,0.385934840631611,0.805278527740635,0.727380648750037],"z":[1.29860024593455,1.27087906407808,-1.76767757332527,-1.53648531054259,-0.820418738336868,0.146759559940053,-0.0764363563957872,-0.32666589931896,-0.350355569714403,-0.456493878282593,0.232036333781877,-0.0100747116093882,-0.0321767351039093,0.308892096286452,0.000397654913940326,0.289518814563553,0.514545891489632,0.434946097936056,0.364969912093862,0.754898869368344,0.782911508172771,0.859756549150886,0.544525101135221,0.834833459125613,0.952901455208925,0.947566847790575,1.22668017393482,1.08700429618894,1.38054709310516,1.55748845918768,-1.46664447151033,-1.11720278049031,-0.802533537420475,-0.78937061153548,-0.154397315236566,-0.334731795211329,-0.907543856212861,-0.562515147296507,-0.27868204750827,-0.353158827454373,-0.230779191709394,-0.308053990982708,-0.374972955759091,-0.0423659735743046,-0.194597719482982,0.319007761340276,0.0296866628950244,-0.0747479561477314,0.546436306122499,0.564842683793437,0.419782823416899,0.442474585244724,0.498028632280204,0.748626051349235,0.793275019028885,1.1078979139277,1.09147473769899,1.182297903093,1.32398272119501,1.46114897326836,1.71543369113996,1.54403872567262,1.60597299631477,2.55932286371134,-0.906575574585225,-0.86174818366684,-0.334647192126369,-0.968386398133612,-0.860687776666026,-0.872459940215462,-0.307351925854012,-0.596229716822273,-0.427778576191611,-0.588016538151793,-0.065956105064326,0.244886685933914,-0.588040917616018,-0.60722835350494,-0.0630839866666671,-0.812353748744285,-0.270421831878932,-0.510190835490975,0.354257421442413,-0.206772832979968,0.28668964571272,-0.00554024001950391,0.382660412627375,0.150099628105865,0.310744808685586,0.589291425574073,0.609600090242401,0.70285715996187,0.619547845134998,0.296232366168261,0.926550933958779,0.574943249892837,0.986048681069082,0.635564799673938,1.23910324199007,0.897070044187147,1.24983984927881,1.71950225213621,1.49932443190444,2.44215071777682,-1.151610007753,-0.765680116407233,-0.787758077642454,-0.0845672067937687,-0.49649185140896,0.169488679445029,-0.139504063675446,0.262841563177802,-0.128312231067543,0.459429333486521,0.567401032142422,0.548259844731544,0.217959196114439,0.539589310937401,0.629375524369039,0.564217355067563,0.480868697767011,0.79801305461355,0.712636923126261,0.701386525426231,0.524674154110471,0.705891941044997,1.01374116041135,1.15641814114034,1.15064502057086,0.948389858625622,1.00663647700829,1.43584349723767,1.17595069598751,1.1761710899693,1.31387875647141,1.21559543877255,1.52133019729877,1.4315348302393,1.62721011073517,1.75953535344225,2.60169203428102,-2.08800543504971,-0.904045965002434,-0.911568851378429,-0.743088509768683,-0.88011723084962,-0.22265645269449,-0.490136116022493,-0.479362277938576,0.686113914900973,0.040182747283735,-0.574377306414624,-0.170873074978824,-0.24263899444807,0.794111225588807,0.643630994645235,0.114106548415827,0.247197324425575,0.381535187065916,0.600348364521929,0.0397251837111218,0.100130970702331,0.663294772638321,1.29616442025354,0.802358345186247,1.57686709714231,1.23109374513334,1.25677052312308,0.748193157256778,1.27459702300238,1.01520700062112,1.1455304174254,1.29430943304195,1.24819001208662,1.2056022963867,1.40043447338128,1.57327357317854,1.80261664000525,-1.83533831728694,-1.3750087539808,-1.12482255031336,-0.997713624776643,-1.26774645241886,-1.06136405562927,-0.934535657065102,-0.133998691251547,-0.783307175955774,-0.525554710404614,0.0830123815853449,-0.324845940594068,0.253065234889597,0.302461409907739,0.144960346417247,0.443557115023297,1.37162215189828,0.282972058371334,0.424936651217072,0.556601853916507,0.829446802910592,0.555795228981579,0.990705539381976,1.52048036905307,1.60099736517838,2.53500472879276,-1.31469044304487,-1.20736632277457,-1.84666621268161,-1.8569415949466,-0.488006565290936,-0.767175465738018,-0.320103482266452,-0.25362136304959,-0.482093086073709,-0.153160170714618,0.81473323434491,0.677925170072706,0.521051565112582,0.491311364846375,0.875118946795875,0.251825072389364,0.78171089659517,1.58068070694595,0.983414747318003,1.55069185427064,2.44598713008306,-0.864273189246722,-0.0217761293975817,-0.171385016538556,-0.591297724020553,-0.0543880402265439,0.128385645927425,0.0795488391367813,-0.322066165081535,-0.179637782383659,0.136194270499736,0.452679176433484,0.619151411482904,0.879119644064198,0.726058262269043,0.914733953884958,2.18709602573361,2.6814116769182,-0.885015926197228,-1.01230437159542,-0.784489480277712,-0.471714467200173,-0.37534336048135,-0.395533209247823,0.139546319948709,-0.119328688516545,0.302004308548017,0.333016328365957,0.95550053267026,0.268861052280918,0.461747131746486,0.850407523085463,1.05284278492404,0.965486460909816,1.35734591829401,1.95157945321827,-1.8067689203984,-0.833072323742515,0.195138549394143,-0.0138224424816339,0.0420344536901069,0.439327151098282,0.66366387228889,0.0686503848323835,-0.610294284111689,0.0744786446807979,-0.547401066729697,-0.749240282388465,0.296674703904482,-0.42796107777938,-0.289021450790095,0.114013562057853,-0.0115354130993803,-0.00861551457703938,0.842271860235621,0.460864277936614,0.831855747739967,1.15918818299318,0.7284778379949,0.874520861441548,1.30011652172738,1.57589847112075,2.58871250722058,-1.32573462129175,-1.56883214681034,-0.937335035841991,0.0609577213176047,-1.44641090284221,-0.184127374008174,0.285940117664267,0.453065695165926,1.29727042319656,1.25716758212203,1.61864417299925,-1.74069618585756,-0.982136008121635,-0.89408785110329,-0.826995465862987,-0.650841792112884,-0.343133864883065,-0.0315654721507037,-0.670060087509497,-0.313360929068613,-0.0592326476029641,0.730057183189788,1.19554576739387],"mode":"markers","type":"scatter3d","name":"1","marker":{"color":"rgba(102,194,165,1)","size":[55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55],"sizemode":"area","line":{"color":"rgba(102,194,165,1)"}},"textfont":{"color":"rgba(102,194,165,1)","size":55},"error_y":{"color":"rgba(102,194,165,1)","width":55},"error_x":{"color":"rgba(102,194,165,1)","width":55},"line":{"color":"rgba(102,194,165,1)","width":55},"frame":null},{"x":[3.70382474233096,2.40662405777588,1.32770891259583,1.17890351881952,0.955104773358114,0.259576604533345,0.256895192515867,0.435476285970477,2.17931062002917,2.98712597982948,2.6981109896776,1.44995855336824,2.47455873489635,0.874858214437554,0.0206365103531637,1.20033400435172,0.27998579211017,3.85741612112785,3.29919591335464,1.55427907996496,1.39223840723506,1.19896515854966,1.93487684642529,1.87690940714637,2.23322734675804,1.04580085193934,1.64205372907098,1.597534730355,0.277897883642469,1.0273364129691,0.402785656788243,1.33440931302372,0.360323537870517,0.467055527060514,4.07729032837869,3.11291326340304,2.96848173506955,2.14704543135348,1.62400467303857,3.33515070506523,3.23799788135785,2.75456198298374,4.28477203278657,2.54692377103711,1.57536865136602,0.660114704675571,1.35664293286646,2.7912945778411,1.79698546614152,1.54122558621618,1.60502218903279,0.950813561870984,1.87867713184398,0.587364030321486,2.6961211425049,2.75296590567566,2.13575733515209,1.65373872475279,1.79885023567772,0.733028359790824,1.53468538466874,0.638130517886812,3.78563166884088,2.34922952542995,1.24932364586058,0.755353942190083,1.32876394085481,1.16536699428374,2.51088961547975,1.45244341481406,1.00885846582811,0.933608458898739,0.423240932638741,0.843317785933181,2.65512507472094,0.936486528483278,1.48347066657414,0.112981468478235,0.726990635446494,-0.0222430779129199,1.58880152409653,0.279591433770781,1.20062901745117,0.828258609690737,1.32071325832881,2.500809978958],"y":[-1.75529963145993,-2.2667719314808,-0.981102805320803,-1.44096331547691,-1.60744804604166,-0.723657401195213,-0.793802412724059,-1.67796857312945,-2.82597845053397,-2.16003952827497,-1.48860811153432,-2.14553104776891,-1.44689675510476,-1.57824974724947,-0.0783087228192978,-1.47710883709254,-0.410533931915042,-1.91588337059726,-2.2015700257041,-1.43225823152582,-1.71804077313238,-2.06373953706595,-1.74873405039826,-1.57959675017736,-1.2878662205714,-1.15189254810273,-1.59079109640969,-1.27062097048466,-0.116762158054746,-0.423948085436261,-0.558308314120014,-2.57045435636858,-1.03897246241091,-0.589020046163877,-2.51888242490696,-1.78883041789051,-2.05014870298459,-2.06430951331901,-1.61123884894985,-2.47187232740178,-1.80848295013038,-1.66643430425018,-1.57906110459914,-1.91019507701483,-0.857076817049596,-0.879902287101511,-1.3469687787015,-1.86693568462489,-1.54198153835692,-1.50044768947047,-2.24915721586846,-1.36111246178324,-1.29282225337321,-0.865789311203407,-2.1150335913665,-2.18095558168764,-1.8015614073046,-1.91209982555282,-1.85467422567641,-1.12676530151517,-1.40065838505455,-1.17177468781316,-2.57571282554957,-1.73463036717728,-1.76283516561948,-1.61452210193826,-1.06724888193133,-0.986122831371012,-1.90612209881038,-2.17978055857456,-1.96211535329212,-1.4986075326554,0.04185431916048,-1.12688990391058,-1.88691931473284,0.42306703998767,-2.31185489750089,-0.727535973112335,-1.28226737172657,-1.95329349063981,-1.31036596814457,-1.08426646142868,-2.38975815188082,-1.3110643443859,-1.83969517009466,-1.68357137190612],"z":[-1.92065132499418,-1.69361371262435,-1.50015116305434,-0.944218400837475,-0.891350916381609,-0.565698244339502,-0.578050131609614,0.401315850542316,-1.96108675996392,-1.90519827924466,-1.56911210281402,-1.75671615837478,-1.21703397665552,-1.51851036782145,-1.88314022941573,-0.662482143421543,-1.18717768844981,-1.63166032811974,-1.00826358868759,-1.23438538512435,-0.855269100879591,-0.151206088684496,-1.3554860052973,-0.910093286571957,-0.890367853004475,-1.25850382594823,-0.677834136744997,-0.816722467166433,-1.62857598150135,-1.4124394517053,-1.2532565223882,0.476884631099748,-0.614218235914192,-0.54542265055034,-1.69246957258637,-1.16846248912703,-1.20516089662499,-1.35888873503027,-0.143947053365001,-1.12723804769018,-1.32729297658361,-1.35631159908674,-0.653207542694491,-0.294401454764691,-0.878959387558887,-0.256197583630341,0.368097480149011,-1.09511894643248,-1.55258850856909,-1.02243170979048,-0.500787186737491,-1.03724667517614,-0.251646427061409,-0.654705094333753,-1.30908893940274,-1.0968193370267,-1.31768793895483,-1.0900529572075,-0.531788122509057,-1.02741299623752,-0.933404268665103,0.489482334060632,-1.81553318371634,-1.79788806161307,-0.831817279799807,-0.664209686757327,-0.706173551000018,-0.661557708577521,-1.17881173482452,-1.19061060702863,-1.05997932018728,-0.368227303015986,-1.36341749693151,0.240508387923036,-0.911580343259707,-1.60678852559931,-0.573278943578802,-1.18600219043926,-1.09898039073879,0.391110498061737,-0.973171062842232,0.0471415073583592,-2.59670156243988,-1.63365961638315,-0.857316830866529,-0.926247908048286],"mode":"markers","type":"scatter3d","name":"2","marker":{"color":"rgba(141,160,203,1)","size":[55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55],"sizemode":"area","line":{"color":"rgba(141,160,203,1)"}},"textfont":{"color":"rgba(141,160,203,1)","size":55},"error_y":{"color":"rgba(141,160,203,1)","width":55},"error_x":{"color":"rgba(141,160,203,1)","width":55},"line":{"color":"rgba(141,160,203,1)","width":55},"frame":null}],"highlight":{"on":"plotly_click","persistent":false,"dynamic":false,"selectize":false,"opacityDim":0.2,"selected":{"opacity":1},"debounce":0},"shinyEvents":["plotly_hover","plotly_click","plotly_selected","plotly_relayout","plotly_brushed","plotly_brushing","plotly_clickannotation","plotly_doubleclick","plotly_deselect","plotly_afterplot","plotly_sunburstclick"],"base_url":"https://plot.ly"},"evals":[],"jsHooks":[]}</script>
+<pre class="r"><code>library(GGally)
+ggpairs(pamclust, aes(color = cluster))</code></pre>
+<p><img src="../../project/project1_files/figure-html/unnamed-chunk-10-3.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code># summarize clusters
+pamclust %&gt;% group_by(cluster) %&gt;% summarize_if(is.numeric, mean, 
+    na.rm = T)</code></pre>
+<pre><code>## # A tibble: 2 x 4
+##   cluster superstar role_player   bust
+##   &lt;fct&gt;       &lt;dbl&gt;       &lt;dbl&gt;  &lt;dbl&gt;
+## 1 1          -0.453       0.421  0.272
+## 2 2           1.63       -1.52  -0.982</code></pre>
+<pre class="r"><code>NBAjoin %&gt;% slice(pam2$id.med)</code></pre>
+<pre><code>## # A tibble: 2 x 7
+##   player        tattoos position superstar role_player  bust `superstar*role_pl…
+##   &lt;chr&gt;         &lt;lgl&gt;   &lt;chr&gt;        &lt;dbl&gt;       &lt;dbl&gt; &lt;dbl&gt;               &lt;dbl&gt;
+## 1 Terrence Wil… TRUE    SG         0.00347       0.373 0.490               0.129
+## 2 Joakim Noah   FALSE   PF         0.0794        0.198 0.335               1.57</code></pre>
+<pre class="r"><code># average silhouette width
+pam2$silinfo$avg.width</code></pre>
+<pre><code>## [1] 0.5584883</code></pre>
+<pre class="r"><code># goodness-of-fit
+sil_width &lt;- vector()
+for (i in 2:10) {
+    pam_fit &lt;- pam(pam_dataNBA, diss = TRUE, k = i)
+    sil_width[i] &lt;- pam_fit$silinfo$avg.width
+}
+ggplot() + geom_line(aes(x = 1:10, y = sil_width)) + scale_x_continuous(name = &quot;k&quot;, 
+    breaks = 1:10)</code></pre>
+<p><img src="../../project/project1_files/figure-html/unnamed-chunk-10-4.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>plot(pam2, which = 2)</code></pre>
+<p><img src="../../project/project1_files/figure-html/unnamed-chunk-10-5.png" width="672" style="display: block; margin: auto;" /></p>
+<p>K-means/PAM was used to cluster all the numeric variables (‘superstar, role_player, and ‘bust’). The data was first processed and scaled for the numeric variables. The silhouette method was used to choose the number of clusters, k. The sil_width taken was plotted into a ggplot and it was shown that the ideal number of clusters is 2. PAM was then used to double check the number of clusters and for the cluster analysis. The Medoids in the output shows the 198th and 254th player is the most representative of each cluster. One cluster has a low Superstar probability and high Role player and Bust probabilities. The other cluster has a high Duperstar probability and low Role player and Bust probabilities. The clustering vectors were saved into the dataset and a ggplot was used to visualize the clusters. The ggpairs computed showed that ‘role_player’ and ‘superstar’ has the highest correlation of -0.796. The means were computed for each cluster for each variable. For cluster 1, the mean for ‘superstar’ was -0.45, for ‘role_player’ was 0.42, and for ‘bust’ was 0.27. for cluster 2, the mean for ‘superstar’ was 1.63, for ‘role_player’ was -1.52 and for ‘bust’ was -0.98.</p>
+<p>When slicing the dataset to show the PAM with the ID Medoids, it was shown that the 2 clusters could be separated by the player, tattoos, or position. After computing three ggplots coloring by player, tattoos, and position, it was clearly shown that those were not the two clusters. The clusters did not match the original cluster labels so those 3 ggplots were deleted from Markdown. I kept the cluster labeling as “cluster 1” and “cluster 2” because it was unclear how the clusters were separated by a certain variable.</p>
+<p>The goodness-of-fit was computed in PAM and it gave an average silhouette width of 0.56. When interpreting this, the average silhouette width falls within 0.51 and 0.70 indicating that a reasonable structure has been found.</p>
+</div>
+
+            
+        <hr>         <div class="related-posts">
+                <h5>Related Posts</h5>
+                
+              </div> 
+            </div>
+          </div>
+
+   <hr>  <div class="disqus">
+  <div id="disqus_thread"></div>
+  <script type="text/javascript">
+
+    (function() {
+      
+      
+      if (window.location.hostname == "localhost")
+        return;
+
+      var disqus_shortname = '';
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+  </script>
+  <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+  <a href="http://disqus.com/" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+</div> 
+        </div>
+      </div>
+    </div>
+
+    
+    <footer>
+  <div id="footer">
+    <div class="container">
+      <p class="text-muted">&copy; All rights reserved. Powered by <a href="https://gohugo.io/">Hugo</a> and
+      <a href="http://www.github.com/nurlansu/hugo-sustain/">sustain</a> with ♥</p>
+    </div>
+  </div>
+</footer>
+<div class="footer"></div>
+
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+<script src="../../js/docs.min.js"></script>
+<script src="../../js/main.js"></script>
+
+<script src="../../js/ie10-viewport-bug-workaround.js"></script>
+
+
+    
+  </body>
+</html>
