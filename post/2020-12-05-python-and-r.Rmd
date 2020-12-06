@@ -40,7 +40,7 @@ mean(quakes[quakes$depth > 247, ]$mag)
 quakes[quakes.depth>247].mag.mean()
 ```
 
-Here, both in R and Python, I computed the mean variable 'mag' when 'depth' is greater than the median 'depth.' The outputs are the same giving approxiametly 4.5232.
+Here, both in R and Python, I computed the mean variable 'mag' when 'depth' is greater than the median 'depth.' The outputs are the same giving approxiametly 4.5232. 
 
 ###Python vs. R!
 ![](/post/2020-12-05-python-and-r_files/python vs r.jpg)
@@ -64,3 +64,7 @@ match=re.match(r"welcome.*like",string)
 match.group()
 ```
 In this example, 're.match' expression returns the first match in the string and anything in between up to the word "like".
+
+
+
+These are only some functions of Python! There are much more out there and can be found easily with Google. 
